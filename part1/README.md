@@ -1,15 +1,17 @@
-# holbertonschool-hbnb
+# HBNB Diagramme de packages
 
 ```mermaid
 classDiagram
 class PresentationLayer {
     <<Interface>>
-    +ServiceAPI
-    +Class2
+    +Inscription
+	+Authentification
+	+Find a place
+	+Place Review
 }
 class BusinessLogicLayer {
     +ModelClasses
-    +Class4
+    +
 }
 class PersistenceLayer {
     +DatabaseAccess
