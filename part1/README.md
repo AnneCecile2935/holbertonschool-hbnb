@@ -2,13 +2,19 @@
 
 ```mermaid
 classDiagram
-class PackageA {
-    +Class1
+class PresentationLayer {
+    <<Interface>>
+    +ServiceAPI
     +Class2
 }
-class PackageB {
-    +Class3
+class BusinessLogicLayer {
+    +ModelClasses
     +Class4
 }
-PackageA --> PackageB
+class PersistenceLayer {
+    +DatabaseAccess
+    +Class4
+}
+PresentationLayer --> BusinessLogicLayer : Facade Pattern
+BusinessLogicLayer --> PersistenceLayer : Database Operations
 ```
