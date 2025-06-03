@@ -3,7 +3,7 @@
 ```mermaid
 classDiagram
 class PresentationLayer {
-    <<Interface>>
+    <<Users>>
     +Inscription
 	+Authentification
 	+Find a place
