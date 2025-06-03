@@ -1,6 +1,6 @@
 # holbertonschool-hbnb
 
-```
+```mermaid
 classDiagram
 class PackageA {
     +Class1
