@@ -78,9 +78,9 @@ class Amenity {
 }
 
 %% Associations
-User "1" --> "*" Place : owns
+User "1" -- "*" Place : owns
 User "1" --> "*" Review : writes
-Place "1" --> "*" Review : receives
+Place "1" *-- "*" Review : receives
 Place "1" *-- "*" Amenity : has
 ```
 
