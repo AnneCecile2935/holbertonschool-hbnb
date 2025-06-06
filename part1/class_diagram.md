@@ -1,87 +1,87 @@
 ```mermaid
 
-flowchart TD
-
 classDiagram
 
+%% Inheritance
 BaseModel <|-- User
 BaseModel <|-- Place
 BaseModel <|-- Review
 BaseModel <|-- Amenity
 
 class BaseModel {
-  + id : string
-  + create_instance : datetime
-  + update_instance : datetime
+  +id: string
+  +create_instance: datetime
+  +update_instance: datetime
 
-  + __init__()
-  + __str__()
-  + save()
-  + push_to_BDD()
+  +__init__(): void
+  +__str__(): string
+  +save(): void
+  +push_to_BDD(): void
 }
 
 class User {
-  + name : str
-  + surname : str
-  + email : str
-  - password : str
-  + admin : bool
+  +name: string
+  +surname: string
+  +email: string
+  -password: string
+  +admin: bool
 
-  + __init__()
-  + __str__()
-  + save()
-  + delete()
-  + push_to_BDD()
+  +__init__(): void
+  +__str__(): string
+  +save(): void
+  +delete(): void
+  +push_to_BDD(): void
 }
 
 class Place {
-  # user_id : str
-  + title : str
-  + description : str
-  + price : float
-  + latitude : float
-  + longitude : float
-  + review_ids : list[str]
-  + amenity_ids : list[str]
+  #user_id: string
+  +title: string
+  +description: string
+  +price: float
+  +latitude: float
+  +longitude: float
+  +review_ids: list<string>
+  +amenity_ids: list<string>
 
-  + create()
-  + update()
-  + delete()
-  + list()
-  + getDetails()
+  +create(): void
+  +update(): void
+  +delete(): void
+  +list(): list<Place>
+  +getDetails(): dict
 }
 
 class Review {
-  # user_id : str
-  # place_id : str
-  + notation : int
-  + comments : str
-  + place_visited : bool
+  #user_id: string
+  #place_id: string
+  +notation: int
+  +comments: string
+  +place_visited: bool
 
-  + __init__()
-  + __str__()
-  + delete()
-  + save()
-  + listed()
-  + push_to_BDD()
+  +__init__(): void
+  +__str__(): string
+  +delete(): void
+  +save(): void
+  +listed(): list<Review>
+  +push_to_BDD(): void
 }
 
 class Amenity {
-  # place_id : str
-  + name : str
-  + description : str
+  #place_id: string
+  +name: string
+  +description: string
 
-  + __init__()
-  + __str__()
-  + delete()
-  + save()
-  + push_to_BDD()
+  +__init__(): void
+  +__str__(): string
+  +delete(): void
+  +save(): void
+  +push_to_BDD(): void
 }
 
-User "1" -- "*" Place
-User "1" -- "*" Review
-Place "1" *--> "*" Review : contains
-Place "1" *-- "*" Amenity : contains
+%% Associations
+User "1" -- "*" Place : owns
+User "1" --> "*" Review : writes
+Place "1" *-- "*" Review : receives
+Place "1" *-- "*" Amenity : has
 ```
 
 ---
