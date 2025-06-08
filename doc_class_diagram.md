@@ -1,4 +1,4 @@
-# 📦 Architecture – High-Level Class Diagram (Part 1 - Task 0)
+# 📦 Architecture – High-Level Class Diagram (Part 1 - Task 1)
 
 ## 🎯 Objectif
 
@@ -23,7 +23,21 @@ Toutes ces entités héritent d’une super-classe commune : `BaseModel`.
 ## 🧩 Détail des classes
 
 ### 🟦 `BaseModel`
+```mermaid
 
+classDiagram
+
+class BaseModel {
+  +id: string
+  +create_instance: datetime
+  +update_instance: datetime
+
+  +__init__(): void
+  +__str__(): string
+  +save(): void
+  +push_to_BDD(): void
+}
+```
 > Classe mère commune, contenant les attributs et méthodes partagés.
 
 **Attributs :**
@@ -42,7 +56,24 @@ Toutes ces entités héritent d’une super-classe commune : `BaseModel`.
 ---
 
 ### 🟩 `User` (hérite de `BaseModel`)
+```mermaid
 
+classDiagram
+
+class User {
+  +name: string
+  +surname: string
+  +email: string
+  -password: string
+  +admin: bool
+
+  +__init__(): void
+  +__str__(): string
+  +save(): void
+  +delete(): void
+  +push_to_BDD(): void
+}
+```
 > Représente un utilisateur inscrit.
 
 **Attributs :**
@@ -64,7 +95,27 @@ Toutes ces entités héritent d’une super-classe commune : `BaseModel`.
 ---
 
 ### 🟧 `Place` (hérite de `BaseModel`)
+```mermaid
 
+classDiagram
+
+class Place {
+  #user_id: string
+  +title: string
+  +description: string
+  +price: float
+  +latitude: float
+  +longitude: float
+  +review_ids: list<string>
+  +amenity_ids: list<string>
+
+  +create(): void
+  +update(): void
+  +delete(): void
+  +list(): list<Place>
+  +getDetails(): dict
+}
+```
 > Représente un bien mis en location.
 
 **Attributs :**
@@ -89,7 +140,25 @@ Toutes ces entités héritent d’une super-classe commune : `BaseModel`.
 ---
 
 ### 🟥 `Review` (hérite de `BaseModel`)
+```mermaid
 
+classDiagram
+
+class Review {
+  #user_id: string
+  #place_id: string
+  +notation: int
+  +comments: string
+  +place_visited: bool
+
+  +__init__(): void
+  +__str__(): string
+  +delete(): void
+  +save(): void
+  +listed(): list<Review>
+  +push_to_BDD(): void
+}
+```
 > Représente un avis rédigé par un utilisateur sur un logement.
 
 **Attributs :**
@@ -112,7 +181,22 @@ Toutes ces entités héritent d’une super-classe commune : `BaseModel`.
 ---
 
 ### 🟪 `Amenity` (hérite de `BaseModel`)
+```mermaid
 
+classDiagram
+
+class Amenity {
+  #place_id: string
+  +name: string
+  +description: string
+
+  +__init__(): void
+  +__str__(): string
+  +delete(): void
+  +save(): void
+  +push_to_BDD(): void
+}
+```
 > Représente un service proposé dans un logement.
 
 **Attributs :**
