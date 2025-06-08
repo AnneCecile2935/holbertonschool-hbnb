@@ -1,5 +1,6 @@
-## 📦 Architecture – High-Level Package Diagram (Part 1 - Task 0)
+# 📦 Architecture – High-Level Package Diagram (Part 1 - Task 0)
 
+## 🎯 Objectif
 Ce diagramme UML représente l’architecture logicielle de l’application **HBnB Evolution**, inspirée d’un modèle AirBnB.  
 Il adopte une structure en **trois couches distinctes** suivant une architecture classique en couches :  
 - `Presentation Layer`  
@@ -11,7 +12,19 @@ Il met également en évidence l’utilisation du **Façade Pattern**, conformé
 ---
 
 ### 🧱 1. Presentation Layer
+```mermaid
 
+flowchart TD
+
+
+%% Presentation Layer
+subgraph Presentation_Layer [PRESENTATION LAYER]
+    Interface[Client Interface]
+    API_Users[API: /users]
+    API_Places[API: /places]
+    API_Reviews[API: /reviews]
+end
+```
 Cette couche correspond à **l’interface d’interaction avec le client** (navigateur, app mobile ou outil type Postman).
 
 Elle contient :
@@ -26,7 +39,26 @@ Elle contient :
 ---
 
 ### 🧠 2. Business Logic Layer
+```mermaid
 
+flowchart TD
+
+
+%% Business Logic Layer
+subgraph Business_Logic_Layer [BUSINESS LOGIC LAYER]
+    subgraph Facade [Pattern Facade]
+        UserService[UserService]
+        PlaceService[PlaceService]
+        ReviewService[ReviewService]
+    end
+    subgraph DomainModels [Domain Models]
+        UserDomain[user]
+        PlaceDomain[place]
+        AmenityDomain[amenity]
+        ReviewDomain[review]
+    end
+end
+```
 Cette couche contient la **logique métier** de l’application.  
 Elle est divisée en deux sous-parties :
 
@@ -47,7 +79,22 @@ Cela garantit une séparation claire entre présentation et logique métier, et 
 ---
 
 ### 🗃️ 3. Persistence Layer
+```mermaid
 
+flowchart TD
+
+
+%% Persistence Layer
+subgraph Persistence_Layer [PERSISTENCE LAYER]
+    Database[Database Access]
+    subgraph Models [Models]
+        UserModel[UserModel]
+        PlaceModel[PlaceModel]
+        ReviewModel[ReviewModel]
+        AmenityModel[AmenityModel]
+    end
+end
+```
 Cette couche est responsable de la **gestion des données persistées**.
 
 Elle contient :
