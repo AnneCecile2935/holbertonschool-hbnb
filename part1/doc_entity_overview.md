@@ -1,120 +1,124 @@
 # 🛠️ Architecture – Entity Overview (Part 1 – Task 3)
 
-## 🎯 Objectif
+## 🎯 Objective
 
-Ce document clôture la Partie 1 du projet HBnB en synthétisant l’organisation de nos entités principales, leur rôle fonctionnel, et leur articulation logique dans le système.
+This document concludes **Part 1** of the HBnB project by summarizing the structure of our main entities, their business role, and how they interact within the system.
 
-Il s’appuie sur les travaux réalisés lors des tâches précédentes :
-- le diagramme de package UML (Tâche 0),
-- le diagramme de classes UML (Tâche 1),
-- les diagrammes de séquence (Tâche 2).
+It builds upon the previous deliverables:
+- the UML package diagram (Task 0),
+- the UML class diagram (Task 1),
+- and the sequence diagrams (Task 2).
 
-Notre objectif est ici de :
-- décrire les entités clés de l'application,
-- expliquer leurs relations structurelles,
-- faire le lien avec les cas d’usage déjà modélisés,
-- et anticiper leur implémentation dans le futur code.
-
----
-## 🧱 Entités principales du système
-
-| Entité     | Attributs clés                                      | Rôle métier                                                                 | Utilisation dans les cas d’usage |
-|------------|------------------------------------------------------|------------------------------------------------------------------------------|----------------------------------|
-| `BaseModel`| `id`, `create_instance`, `update_instance`           | Classe mère assurant l’unicité et la traçabilité des entités                | Inhérente à toutes les entités |
-| `User`     | `id`, `name`, `surname`, `email`, `password`, `admin` | Représente un utilisateur de la plateforme (client ou administrateur)       | Créer un utilisateur, Créer une review, Créer un lieu |
-| `Place`    | `id`, `title`, `description`, `price`, `latitude`, `longitude`, `user_id`, `review_ids` | Représente un lieu proposé par un utilisateur                               | Créer un lieu, Créer une review, Lister les lieux |
-| `Review`   | `id`, `user_id`, `place_id`, `text`                   | Permet à un utilisateur de donner un avis sur un lieu                       | Créer une review |
-| `Amenity`  | `id`, `name`                                          | Désigne un équipement ou service disponible dans un lieu                    | Permet de filtrer les lieux |
-
-🧠 Remarques :
-- Amenity est bien dans le diagramme de classes, mais pas utilisé dans les cas d’usage de la Partie 1 → Son usage est prévu pour plus tard.
-
----
-## 🔗 Relations entre les entités
-
-Nos entités sont liées entre elles selon une logique simple, reflétée dans notre diagramme de classes UML.
-
-| Relation                       | Type de lien      | Détail technique / Implémentation |
-|--------------------------------|-------------------|------------------------------------|
-| `User` → `Place`               | One-to-Many       | Un utilisateur peut créer plusieurs lieux (`Place.user_id`) |
-| `User` → `Review`              | One-to-Many       | Un utilisateur peut créer plusieurs reviews (`Review.user_id`) |
-| `Place` → `Review`             | One-to-Many       | Un lieu peut recevoir plusieurs reviews (`Review.place_id`) |
-| `Place` → `Amenity`            | Many-to-Many      | Un lieu peut avoir plusieurs services, et un service peut être partagé |
-| Toutes entités → `BaseModel`  | Héritage          | Chaque entité hérite de `BaseModel` (pour les champs `id`, `create_instance`, `update_instance`) |
-
----
-🧠 Remarques :
-
-- Les relations `One-to-Many` sont matérialisées par une **clé étrangère** côté “Many” (ex: `place_id` dans `Review`).
-- La relation `Place` ↔ `Amenity` nécessite une **table d’association** (ex : `place_amenity`).
-
----
-## 🔄 Entités et cas d’usage
-
-Voici comment les entités principales sont mobilisées dans les cas d’usage modélisés dans nos diagrammes de séquence :
-
-| Cas d’usage              | Entités impliquées                            | Rôle des entités |
-|--------------------------|-----------------------------------------------|------------------|
-| Créer un utilisateur     | `User`, `BaseModel`                          | Le système crée un nouvel utilisateur avec un identifiant unique. |
-| Créer un lieu (`Place`)  | `Place`, `User`, `BaseModel`                 | Le lieu est lié à l’utilisateur créateur via `user_id`. |
-| Créer une review         | `Review`, `User`, `Place`, `BaseModel`       | La review est liée à un utilisateur (auteur) et à un lieu. Les deux doivent exister. |
-| Lister les lieux         | `Place`                                      | Le système récupère tous les lieux, éventuellement filtrés par `Amenity`. |
+Our goals are to:
+- describe the key entities of the application,
+- explain their structural relationships,
+- link them to the modeled use cases,
+- and anticipate their implementation in code.
 
 ---
 
-🧠 Remarques :
+## 🧱 Main System Entities
 
-- Ces cas d’usage couvrent **les principales interactions du système** : création, relation entre entités, lecture conditionnelle.
+| Entity     | Key Attributes                                       | Business Role                                                         | Usage in Use Cases                |
+|------------|------------------------------------------------------|------------------------------------------------------------------------|-----------------------------------|
+| `BaseModel`| `id`, `create_instance`, `update_instance`           | Parent class ensuring entity uniqueness and traceability              | Inherited by all entities         |
+| `User`     | `id`, `name`, `surname`, `email`, `password`, `admin`| Represents a platform user (client or admin)                          | Create user, Create review, Create place |
+| `Place`    | `id`, `title`, `description`, `price`, `latitude`, `longitude`, `user_id`, `review_ids` | Represents a place offered by a user                        | Create place, Create review, List places |
+| `Review`   | `id`, `user_id`, `place_id`, `text`                  | Allows a user to leave feedback on a place                            | Create review                     |
+| `Amenity`  | `id`, `name`                                         | Describes a service or feature available at a place                   | Used to filter places             |
 
----
-## 🛠️ Projection dans le code
-
-Nos entités seront implémentées sous forme de **classes Python**, organisées selon une approche orientée objet classique.
-
-### 🧱 Structure commune (héritage)
-
-Toutes les entités (`User`, `Place`, `Review`, `Amenity`) hériteront d’une **classe mère `BaseModel`**, qui contiendra :
-
-- un identifiant unique (`id`)
-- une date de création (`create_instance`)
-- une date de mise à jour (`update_instance`)
-- des méthodes utiles comme :
-  - `__init__()` : initialisation
-  - `__str__()` : affichage formaté
-  - `save()` : mise à jour de `update_instance`
-
-Cela permet de **centraliser les comportements communs** et de **faciliter les extensions futures** (sérialisation, sauvegarde, etc.).
+🧠 Notes:
+- `Amenity` appears in the class diagram but is not directly used in Part 1 use cases → It will be used in later phases.
 
 ---
 
-### 🧩 Exemples d’implémentation (sans code)
+## 🔗 Relationships Between Entities
 
-| Classe    | Attributs spécifiques                                   | Méthodes envisagées              |
-|-----------|---------------------------------------------------------|----------------------------------|
-| `User`    | `name`, `surname`, `email`, `password`, `admin`         | `delete()`, `save()`, `__str__()` |
+Our entities are logically linked as represented in the class diagram.
+
+| Relationship                  | Type             | Technical Detail / Implementation                             |
+|------------------------------|------------------|---------------------------------------------------------------|
+| `User` → `Place`             | One-to-Many      | One user can create multiple places (`Place.user_id`)         |
+| `User` → `Review`            | One-to-Many      | One user can write multiple reviews (`Review.user_id`)        |
+| `Place` → `Review`           | One-to-Many      | One place can receive multiple reviews (`Review.place_id`)    |
+| `Place` → `Amenity`          | Many-to-Many     | A place can have many services, and one service can be reused |
+| All Entities → `BaseModel`   | Inheritance       | All entities inherit `BaseModel` (for `id`, timestamps, etc.) |
+
+---
+
+🧠 Notes:
+
+- `One-to-Many` relationships are implemented using **foreign keys** on the “Many” side (e.g. `place_id` in `Review`).
+- The `Place` ↔ `Amenity` link requires an **association table** (e.g. `place_amenity`).
+
+---
+
+## 🔄 Entities and Use Cases
+
+Here is how each entity is involved in the use cases modeled in the sequence diagrams:
+
+| Use Case              | Entities Involved                            | Role of Entities                                                   |
+|-----------------------|----------------------------------------------|---------------------------------------------------------------------|
+| Create user           | `User`, `BaseModel`                          | A new user is created with a unique identifier                     |
+| Create place          | `Place`, `User`, `BaseModel`                 | The place is linked to the creator through `user_id`              |
+| Create review         | `Review`, `User`, `Place`, `BaseModel`       | The review is linked to both the user and the place (must exist)  |
+| List places           | `Place`                                      | The system retrieves places, optionally filtered by `Amenity`     |
+
+---
+
+🧠 Notes:
+
+- These use cases cover the **main system interactions**: creation, relationships, and conditional data retrieval.
+
+---
+
+## 🛠️ Projection Into Code
+
+Our entities will be implemented as **Python classes**, following a standard object-oriented design.
+
+### 🧱 Shared Structure (Inheritance)
+
+All entities (`User`, `Place`, `Review`, `Amenity`) will inherit from a **common `BaseModel` class**, which will provide:
+
+- a unique ID (`id`)
+- a creation timestamp (`create_instance`)
+- an update timestamp (`update_instance`)
+- common methods such as:
+  - `__init__()` – initialization
+  - `__str__()` – string representation
+  - `save()` – updates `update_instance`
+
+This allows us to **centralize shared behaviors** and **facilitate future extensions** (serialization, persistence, etc.).
+
+---
+
+### 🧩 Implementation Examples (Pseudocode Only)
+
+| Class     | Specific Attributes                                      | Expected Methods                      |
+|-----------|----------------------------------------------------------|----------------------------------------|
+| `User`    | `name`, `surname`, `email`, `password`, `admin`          | `delete()`, `save()`, `__str__()`      |
 | `Place`   | `title`, `description`, `price`, `latitude`, `longitude`, `user_id`, `review_ids`, `amenities` | `save()`, `get_reviews()` |
-| `Review`  | `user_id`, `place_id`, `text`                            | `save()`                         |
-| `Amenity` | `name`                                                   | `save()`                         |
+| `Review`  | `user_id`, `place_id`, `text`                            | `save()`                               |
+| `Amenity` | `name`                                                   | `save()`                               |
 
 ---
 
-🧠 Remarques :
+🧠 Notes:
 
-- Les attributs comme `user_id`, `place_id`, `review_ids` matérialisent les **liens entre entités**.
-- Certains attributs (comme `amenity`) pourront être des **listes d’objets ou d’identifiants**.
-- L’implémentation respectera la **séparation logique** entre données (attributs) et actions (méthodes), avec un usage progressif des bonnes pratiques orientées objet.
+- Attributes like `user_id`, `place_id`, and `review_ids` represent **entity relationships**.
+- Some attributes (`amenity`) may be **lists of objects or IDs**.
+- The implementation will follow **object-oriented best practices**, separating **data (attributes)** from **behavior (methods)**.
 
 ---
 
 ## ✅ Conclusion
 
-Cette documentation synthétise notre compréhension de l’architecture orientée objet de l’application HBnB.
+This document summarizes our understanding of the object-oriented architecture of the HBnB application.
 
-Elle met en lumière :
-- les **entités principales** manipulées dans notre système,
-- leurs **relations structurelles et fonctionnelles**,
-- leur **rôle concret dans les cas d’usage métier** modélisés précédemment,
-- et leur **projection technique** dans le futur code.
+It highlights:
+- the **main entities** used in the system,
+- their **structural and functional relationships**,
+- their **specific roles within business use cases**,
+- and their **technical projection** into Python classes.
 
-La partie 1 de conception pose les bases d’un développement structuré, cohérent et maintenable.  
-Il facilitera la mise en œuvre des prochaines étapes du projet : implémentation des classes, sérialisation, routes API, et gestion de la persistance.
+This conceptual work sets a solid foundation for future implementation: class definitions, data serialization, API routing, and persistence management.
