@@ -51,3 +51,7 @@ La première partie du projet est dédiée à la conception technique :
 - Diagrammes UML, description des entités, cas d’usage, architecture logique.
     - 👉 Voir la documentation dans part1/ et docs/.
 
+## 👩‍💻👩‍💻👨‍💻 Auteurs :
+- Anne-Cécile 
+- Claire
+- Bary
