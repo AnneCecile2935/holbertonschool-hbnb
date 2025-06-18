@@ -140,6 +140,7 @@ class User(BaseModel):
 
         Raises:
             ValueError: If email is invalid or already used.
+            
         """
         if not value or not value.strip():
             raise ValueError("email is required and cannot be empty")

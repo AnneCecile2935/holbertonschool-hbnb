@@ -1,7 +1,7 @@
 import unittest
 from app.models.user import User
 
-
+"""test class user"""
 class TestUser(unittest.TestCase):
     def setUp(self):
         # On nettoie les emails enregistrés entre les tests
@@ -37,6 +37,7 @@ class TestUser(unittest.TestCase):
             self.user.email = "missing@dot"
         with self.assertRaises(ValueError):
             self.user.email = ""
+
 
     def test_is_admin_setter(self):
         self.user.is_admin = True

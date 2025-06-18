@@ -3,7 +3,7 @@ import uuid
 
 class BaseModel:
     """
-    BaseModel class that provides a unique ID, creation and update timestamps,
+    BaseModel class  that provides a unique ID, creation and update timestamps,
     and methods to save and update the instance attributes.
     """
     def __init__(self):
