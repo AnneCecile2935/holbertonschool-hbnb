@@ -58,7 +58,6 @@ class User(BaseModel):
             f")"
         )
 
-
     @property
     def first_name(self):
         """
@@ -140,7 +139,7 @@ class User(BaseModel):
 
         Raises:
             ValueError: If email is invalid or already used.
-            
+
         """
         if not value or not value.strip():
             raise ValueError("email is required and cannot be empty")
@@ -151,7 +150,7 @@ class User(BaseModel):
 
         old_email = getattr(self, "_email", None)
         if old_email and old_email in User.users_email:
-            del User.users_email[old_email] #to do gerer dans la façade?
+            del User.users_email[old_email]
 
         self._email = value.strip()
         User.users_email[value] = self
@@ -165,7 +164,6 @@ class User(BaseModel):
         if type(value) is not bool:
             raise ValueError("Is_admin must be a boolean")
         self._is_admin = value
-
 
     @staticmethod
     def email_valid(email):
