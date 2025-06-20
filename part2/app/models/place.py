@@ -85,7 +85,7 @@ class Place(BaseModel):
     @description.setter
     def description(self, value):
         # Vérifie le type de donnée et si la donnée est vide
-        if not isinstance(value, str) or not isinstance(value, None):
+        if not (isinstance(value, str) or value is None):
             raise TypeError("Description must be a string.")
         else:
             self._description = value.strip()
@@ -109,12 +109,11 @@ class Place(BaseModel):
 
     @latitude.setter
     def latitude(self, value):
-        if not isinstance(value, int, float):
+        if not isinstance(value, (int, float)):
             raise TypeError("Latitude must be a float.")
-        elif not value < -90.0 or value > 90.0:
+        if value < -90.0 or value > 90.0:
             raise ValueError("Latitude must be between -90.0 and 90.0.")
-        else:
-            self._latitude = float(value)
+        self._latitude = float(value)
 
     @property
     def longitude(self):
@@ -122,12 +121,11 @@ class Place(BaseModel):
 
     @longitude.setter
     def longitude(self, value):
-        if not isinstance(value, int, float):
+        if not isinstance(value, (int, float)):
             raise TypeError("Longitude must be a float.")
-        elif not value < -180.0 or value > 180.0:
+        if value < -180.0 or value > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0.")
-        else:
-            self._longitude = float(value)
+        self._longitude = float(value)
 
     @property
     def owner(self):
