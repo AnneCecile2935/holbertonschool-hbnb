@@ -33,7 +33,8 @@ class Review(BaseModel):
         user (str): ID of the user who wrote the review. The user must be
         an object with an `id`.
     """
-
+    reviews_list = {}
+    
     def __init__(self, text, rating, place, user):
         """
         Initializes a new Review instance.
