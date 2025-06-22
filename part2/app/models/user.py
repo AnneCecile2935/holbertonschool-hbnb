@@ -143,17 +143,20 @@ class User(BaseModel):
         """
         if not value or not value.strip():
             raise ValueError("email is required and cannot be empty")
-        if not self.email_valid(value):
+        cleaned_email = value.strip()
+        if not self.email_valid(cleaned_email):
             raise ValueError("Email format is invalid")
-        if value in User.users_email and User.users_email[value] is not self:
+        if (cleaned_email in User.users_email and
+                User.users_email[cleaned_email] is not self):
             raise ValueError("This email is already used")
+
 
         old_email = getattr(self, "_email", None)
         if old_email and old_email in User.users_email:
             del User.users_email[old_email]
 
         self._email = value.strip()
-        User.users_email[value] = self
+        User.users_email[cleaned_email] = self
 
     @property
     def is_admin(self):

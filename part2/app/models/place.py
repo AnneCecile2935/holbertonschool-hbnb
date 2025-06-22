@@ -25,6 +25,8 @@ class Place(BaseModel):
         reviews (list)    : List of Review objects related to the place.
         amenities (list)  : List of Amenity objects available at the place.
     """
+    place_list = {}
+
     def __init__(self, title, price, latitude,
                  longitude, owner, description=None):
         """

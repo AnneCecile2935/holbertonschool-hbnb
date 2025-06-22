@@ -17,13 +17,13 @@ class TestPlaceModel(unittest.TestCase):
 
         # Ajout d’un avis
         review = Review(text="Great stay!", rating=5, place=place, user=owner)
-        place.add_review(review)
 
         # Assertions
         self.assertEqual(place.title, "Cozy Apartment")
         self.assertEqual(place.price, 100)
         self.assertEqual(len(place.reviews), 1)
         self.assertEqual(place.reviews[0].text, "Great stay!")
+        
 
 if __name__ == '__main__':
     unittest.main()

@@ -15,6 +15,8 @@ class Amenity(BaseModel):
     Attributes:
         name (str): Name of the amenity (required, max 50 characters).
     """
+    amenities_name = {}
+
     def __init__(self, name):
         """
         Initializes a new Amenity instance.
@@ -47,9 +49,18 @@ class Amenity(BaseModel):
             TypeError: If value is not a non-empty string.
             ValueError: If value exceeds 50 characters.
         """
-        if not isinstance(value, str) or not value.strip():
+        if not isinstance(value, str):
             raise TypeError("Name must be a string")
-        elif len(value) > 50:
+        value = value.strip()
+        if not value:
+            raise ValueError("Name cannot be empty")
+        if len(value) > 50:
             raise ValueError("Name is too long, more than 50 characters")
-        else:
-            self._name = value.strip()
+        if value in Amenity.amenities_name and Amenity.amenities_name[value] is not self:
+            raise ValueError("This amenity is already registered.")
+        old_name = getattr(self, "_name", None)
+        if old_name and old_name in Amenity.amenities_name:
+            del Amenity.amenities_name[old_name]
+
+        self._name = value
+        Amenity.amenities_name[value] = self
