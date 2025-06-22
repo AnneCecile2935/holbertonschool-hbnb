@@ -33,7 +33,8 @@ class Review(BaseModel):
         user (str): ID of the user who wrote the review. The user must be
         an object with an `id`.
     """
-
+    reviews_list = {}
+    
     def __init__(self, text, rating, place, user):
         """
         Initializes a new Review instance.
@@ -123,6 +124,10 @@ class Review(BaseModel):
         self._place = value.id
 
     @property
+    def place_id(self):
+        return self._place
+
+    @property
     def user(self):
         """
         User: Gets or sets the user who wrote the review.
@@ -137,3 +142,10 @@ class Review(BaseModel):
         if not hasattr(value, "id"):
             raise TypeError("user must be an object with an id")
         self._user = value.id
+
+    @property
+    def user_id(self):
+        return self._user
+
+
+
