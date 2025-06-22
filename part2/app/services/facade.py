@@ -1,68 +1,176 @@
-"""
-Module defining the HBnB facade for centralized access to data repositories.
-
-This module introduces the `HBnBFacade` class, which groups together
-the various repository interfaces:
-    - users
-    - places
-    - reviews
-    - amenities
-and serves as a single entry point for the application's
-business logic operations.
-
-This structure helps encapsulate business logic and simplifies
-interactions between the API layer and the persistence layer.
-"""
 from app.persistence.repository import InMemoryRepository
+from app.models.user import User
+from app.models.amenity import Amenity
+from app.models.place import Place
+from app.models.review import Review
 
 
 class HBnBFacade:
-    """
-    Facade centralizing access to the HBnB application's repositories.
-
-    Attributes:
-    - user_repo: In-memory repository for users.
-    - place_repo: In-memory repository for places.
-    - review_repo: In-memory repository for reviews.
-    - amenity_repo: In-memory repository for amenities.
-
-    This class will contain the core business methods
-    to interact with these repositories (create, retrieve, update, etc.).
-    """
     def __init__(self):
-        """
-        Initializes the facade with in-memory repositories for each entity.
-        """
         self.user_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
 
-    # Placeholder method for creating a user
+# -------------------------------------------------------- methodes facade user
+
     def create_user(self, user_data):
-        """
-        Creates a new user from the provided data.
+        try:                    # Passe les données dans les méthodes de classe
+            user = User(**user_data)
+        except (ValueError, TypeError) as e:                        # Si erreur
+            raise ValueError(f"Invalid user data: {str(e)}")
 
-        Parameter:
-        - user_data: Dictionary containing the user's information.
+        self.user_repo.add(user)                     # Si OK ont ajoute le user
+        return user                                  # Return user
 
-        Note:
-        - The implementation logic will be added in a future task.
-        """
-        # Logic will be implemented in later tasks
-        pass
+    def get_user_by_email(self, email):
+        return self.user_repo.get_by_attribute('email', email)
 
-    # Placeholder method for fetching a place by ID
+    def get_all_users(self):
+        return self.user_repo.get_all()  # Récupère et retourne tout les users
+
+    def get_user(self, user_id):
+        return self.user_repo.get(user_id)  # Récupère et retourne  l'user id
+
+    def update_user(self, user_id, update_data):
+        user = self.get_user(user_id)                # Récupère le user_id
+        if not user:                                 # Si pas trouvé = Erreur
+            raise ValueError("User not found")
+        if 'email' in update_data:                   # Si il y un champ 'email'
+            email = update_data['email']             # Récupère le new email
+            existing_user = self.get_user_by_email(email)       # Vérifie email
+            if existing_user and existing_user.id != user_id:
+                raise ValueError(f"Email '{email}' is already registered.")
+
+        # Boucle pour modifier les attributs dynamiquement
+        for attribut in ['first_name', 'last_name', 'email']:
+            if attribut in update_data:
+                setattr(user, attribut, update_data[attribut])
+        return user
+# ----------------------------------------------------- methodes facade amenity
+
+    def create_amenity(self, amenity_data):
+        try:                    # Passe les données dans les méthodes de classe
+            amenity = Amenity(**amenity_data)
+        except (ValueError, TypeError) as e:                        # Si erreur
+            raise ValueError(f"Invalid amenity data: {str(e)}")
+
+        self.amenity_repo.add(amenity)             # Si OK ont ajoute l'amenity
+        return amenity                             # Return user
+
+    def get_amenity_by_name(self, name):
+        # Récupère et return l'amenity par sont name
+        return self.amenity_repo.get_by_attribute('name', name)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()   # Récup et return tout les amenity
+
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)  # Récup et return amenity id
+
+    def update_amenity(self, amenity_id, update_data):
+        # Récupère l'obj amenity par son id
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:                    # Si l'amenity n'existe pas = Erreur
+            raise ValueError("Amenity not found")
+        try:
+            # Mise à jour de l'amenity dans le repo
+            self.amenity_repo.update(amenity_id, update_data)
+        except (ValueError, TypeError) as e:
+            raise ValueError(f"Invalid amenity data: {str(e)}")
+
+        return amenity
+
+#--------------------------------------------------------- methodes facade place
+
     def get_place(self, place_id):
-        """
-        Retrieves a place by its unique identifier.
+        return self.place_repo.get(place_id)
 
-        Parameter:
-        - place_id: The unique ID of the place.
+    def get_reviews_by_place(self, place_id):
+        all_reviews = self.review_repo.get_all()  # Récupère toutes les reviews
+        filtered_reviews = []                     # Liste vide
 
-        Returns:
-        - The corresponding place object, or None if not found
-          (logic to be implemented).
-        """
-        # Logic will be implemented in later tasks
-        pass
+        for review in all_reviews:                # Boucle sur les reviews
+            if review.place_id == place_id:       # Si place_id OK
+                filtered_reviews.append(review)   # Ajoute la review à la liste
+
+        return filtered_reviews                   # Return la liste
+
+    def create_place(self, place_data):
+        if 'owner' not in place_data:     # Si le champ owner est vide = Erreur
+            raise ValueError("The place data must include an 'owner'.")
+
+        owner_id = place_data['owner']    # Récupération de l'owner id
+        owner = self.get_user(owner_id)   # Récupération de l'user id
+        if not owner:                     # Si il n'y a pas de match = Erreur
+            raise ValueError(f"Owner user with id {owner_id} does not exist.")
+        # Passe les données dans les méthodes de classe
+        place = Place(**place_data, owner=owner)
+        self.place_repo.add(place)        # Si OK ont ajoute la place
+        return place                      # Return place
+
+    def get_all_places(self):
+        return self.place_repo.get_all()  # Récup et return tout les places
+
+    def update_place(self, place_id, place_data):
+        # Récupère l'obj place par son id
+        place = self.place_repo.get(place_id)
+        if not place:                       # Si la place n'existe pas = Erreur
+            raise ValueError("Place not found")
+
+        # Boucle pour modifier les attributs dynamiquement
+        for attribut in ['title', 'description',
+            'price', 'latitude', 'longitude']:
+            if attribut in place_data:
+                setattr(place, attribut, place_data[attribut])
+        return place
+#------------------------------------------------------- methodes facade review
+
+    def create_review(self, review_data):
+        place_id = review_data.get('place_id')
+        user_id = review_data.get('user_id')
+
+        place = self.get_place(place_id)
+        if not place:
+            raise ValueError("Place not found")
+
+        user = self.get_user(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        review = Review(
+            review_data.get('text'),
+            review_data.get('rating'),
+            place,
+            user
+        )
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def update_review(self, review_id, update_data):
+        review = self.get_review(review_id)
+        if not review:
+            return None
+
+        if 'user_id' in update_data:
+            user = self.get_user(update_data['user_id'])
+            if not user:
+                raise ValueError("User not found")
+            review.user_id = update_data['user_id']
+
+        if 'place_id' in update_data:
+            place = self.get_place(update_data['place_id'])
+            if not place:
+                raise ValueError("Place not found")
+            review.place_id = update_data['place_id']
+
+        for field in ['text', 'rating']:
+            if field in update_data:
+                setattr(review, field, update_data[field])
+        return review
