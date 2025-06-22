@@ -81,6 +81,18 @@ class HBnBFacade:
 
         return amenity
 
+    def get_amenities_by_place(self, place_id):
+        # Exemple où chaque amenity a une liste des place_ids associées
+        amenities_list = []
+        for amenity in self.amenity_repo.get_all():
+            # Supposons que amenity a un attribut place_ids qui est une liste d'IDs
+            if place_id in amenity.get('place_ids', []):
+                amenities_list.append({
+                    'id': amenity['id'],
+                    'name': amenity['name']
+                })
+        return amenities_list
+
 # ------------------------------------------------------- methodes facade place
 
     def get_place(self, place_id):

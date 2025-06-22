@@ -58,8 +58,8 @@ review_update_model = api.model(
         )
     }
 )
-place_model = api.model(
-    'Place',
+review_place_model = api.model(
+    'ReviewPlacemodel',
     {
         'title': fields.String(
             required=True,
