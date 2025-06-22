@@ -1,3 +1,17 @@
+"""
+Users API module.
+
+This module provides endpoints to manage user entities.
+It supports creating new users, retrieving all users,
+getting a user by ID, and updating user information.
+
+Endpoints:
+- /api/v1/users/ [GET, POST]: List all users or create a new user.
+- /api/v1/users/<user_id> [GET, PUT]: Retrieve or update a user by ID.
+
+Models:
+- user_model: Schema for user creation and validation.
+"""
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -29,12 +43,21 @@ user_model = api.model('User', {                # "model" permet de déclarer
 # ------------------------------------------- Route POST & GET : /api/v1/users/
 @api.route('/')                 # Création d'une route
 class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
+    """Resource to create a new user and retrieve all users."""
     @api.expect(user_model, validate=True)            # Vérifie avec user_model
     @api.response(201, 'User successfully created')                       # OK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
 # ------------------------------------ Fonction pour enregister un nouveau user
     def post(self):
-        """Register a new user"""
+        """
+        Register a new user.
+
+        Expects JSON payload matching user_model.
+
+        Returns:
+            dict: Created user data with HTTP 201 on success,
+                  or error message with HTTP 400 on failure.
+        """
         try:
             user_data = api.payload    # Récup les datas envoyées par le client
             # Vérifie les données et si ok crée un nouvel user
@@ -52,7 +75,12 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
     @api.response(200, 'List of users retrieved successfully')
 # ---------------------------------- Fonction pour récupérer la liste des users
     def get(self):
-        """Get all users"""
+        """
+        Retrieve a list of all users.
+
+        Returns:
+            list: List of users with HTTP 200 status.
+        """
         users = facade.get_all_users()    # Récupère les users dans le _storage
         users_list = []                   # Crée une liste de vide
         for user in users:                # Boucle dans le _storage
@@ -69,11 +97,21 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
 @api.route('/<user_id>')        # Création d'une route
 class UserResource(Resource):   # Récupération des méthodes par Resource
+    """Resource to retrieve and update a user by their ID."""
     @api.response(200, 'User details retrieved successfully')   # OK
     @api.response(404, 'User not found')                        # NOK
 # ---------------------------------- Fonction pour récupérer un user par son id
     def get(self, user_id):
-        """Get user details by ID"""
+        """
+        Get user details by ID.
+
+        Args:
+            user_id (str): The ID of the user.
+
+        Returns:
+            dict: User details with HTTP 200 on success,
+                  or error message with HTTP 404 if not found.
+        """
         user = facade.get_user(user_id)           # Récupère l'id par la façade
         if not user:                                    # Si user id pas trouvé
             return {'error': 'User not found'}, 404     # Erreur
@@ -91,7 +129,18 @@ class UserResource(Resource):   # Récupération des méthodes par Resource
     @api.response(400, 'Invalid input data or email already registered')
 # ----------------------------------- Fonction pour modifier un user par son id
     def put(self, user_id):
-        """Put user details by ID"""
+        """
+        Update user details by ID.
+
+        Args:
+            user_id (str): The ID of the user.
+
+        Expects JSON payload matching user_model.
+
+        Returns:
+            dict: Updated user data with HTTP 200 on success,
+                  or error message with HTTP 400 or 404 on failure.
+        """
         try:
             update_data = api.payload              # Récupère nouvelles données
             # Vérifie les nouvelles données et si OK modifie le user
