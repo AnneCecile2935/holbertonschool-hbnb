@@ -190,3 +190,8 @@ class InMemoryRepository(Repository):
             ),
             None
         )
+
+    def clear(self):
+        """Clear all data from the in-memory storage."""
+        self._storage.clear()
+
