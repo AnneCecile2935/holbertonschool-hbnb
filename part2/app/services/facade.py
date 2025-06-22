@@ -97,7 +97,9 @@ class HBnBFacade:
         return filtered_reviews                   # Return la liste
 
     def create_place(self, place_data):
-        if 'owner' not in place_data:     # Si le champ owner est vide = Erreur
+        # Si le champ owner est vide ou si la place_data n'a pas de value
+        # = Erreur
+        if 'owner' not in place_data or not place_data["owner"]:
             raise ValueError("The place data must include an 'owner'.")
 
         owner_id = place_data['owner']    # Récupération de l'owner id
