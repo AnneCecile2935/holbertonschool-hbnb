@@ -1,94 +1,105 @@
 # HBnB Flask REST API
 
-## 🧩 Objectif du projet
+## 🧩 Project Objective
 
-Ce projet est une API REST modulaire pour l'application HBnB, développée en Flask et structurée selon une architecture en couches :
+This project is a modular REST API for the HBnB application,
+developed using Flask and structured following a layered architecture:
 
-- **Présentation (API)** : Gestion des routes et de l’exposition des services.
-- **Logique métier (Modèles & Services)** : Contient la logique fonctionnelle et les entités principales.
-- **Persistance (In-Memory Repository)** : Gère le stockage temporaire des objets, en attendant l'intégration d'une base de données (Partie 3).
+- **Presentation Layer (API)** : Manages routes and service exposure.
+- **Business Logic (Models & Services)** : Contains functional logic
+and main entities.
+- **Persistance (In-Memory Repository)** : Manages temporary storage of objects,
+with a database integration planned in Part 3.
 
 ---
 
-## 📁 Structure du projet
+## 📁 Project Structure
 
 ```bash
 hbnb/
 ├── app/
-│   ├── __init__.py             # Initialise l'application Flask
+│   ├── __init__.py                     # Initialize the Flask application
 │   ├── api/
 │   │   ├── __init__.py
 │   │   └── v1/
 │   │       ├── __init__.py
-│   │       ├── users.py        #  Routes liées aux utilisateurs
-│   │       ├── places.py       #  Routes liées aux lieux
-│   │       ├── reviews.py      #  Routes liées aux avis
-│   │       └── amenities.py    #  Routes liées aux commodités
+│   │       ├── users.py                # User-related routes
+│   │       ├── places.py               # Place-related routes
+│   │       ├── reviews.py              # Review-related routes
+│   │       └── amenities.py            # Amenity-related routes
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── user.py             # Modèle utilisateur
-│   │   ├── place.py            # Modèle lieu
-│   │   ├── review.py           # Modèle avis
-│   │   └── amenity.py          # Modèle commodité
+│   │   ├── base_model.py               # BaseModel class
+│   │   ├── user.py                     # User model
+│   │   ├── place.py                    # Place model
+│   │   ├── review.py                   # Review model
+│   │   └── amenity.py                  # Amenity model
 │   ├── services/
-│   │   ├── __init__.py         # Instancie le HBnBFacade
-│   │   └── facade.py           # Pattern façade entre API, modèles, et persistance
-│   └── persistence/
+│   │   ├── __init__.py                 # Instantiates the HBnBFacade
+│   │   └── facade.py                   # Facade pattern between API, models, and persistence
+│   ├── persistence/
+│   │   ├── __init__.py
+│   │   └── repository.py               # In-memory repository (InMemoryRepository)
+│   └── tests/                         # Unit tests
 │       ├── __init__.py
-│       └── repository.py       # Référentiel en mémoire (InMemoryRepository)
-├── run.py                      # Point d’entrée de l'application Flask
-├── config.py                   # Configuration de l’application
-├── requirements.txt            # Dépendances Python
-└── README.md                   # Documentation du projet
+│       ├── test_base_model.py          # Tests for BaseModel
+│       ├── test_user.py                # Tests for User
+│       ├── test_place.py               # Tests for Place
+│       ├── test_review.py              # Tests for Review
+│       └── test_amenity.py             # Tests for Amenity
+├── run.py                            # Flask app entry point
+├── config.py                         # Application configuration
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Project documentation
 ```
 
 ---
 
-## ⚙️ Installation & Lancement
+## ⚙️  Installation & Running
 
-### 1. Cloner le dépôt
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Helvlaska/holbertonschool-hbnb.git
 ```
 
-### 2. Créer un environnement virtuel
+### 2. Create a virtual environment
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Installer les dépendances
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Lancer l’application
+### 4.  Start the application
 
 ```bash
 python run.py
 ```
 
-Par défaut, l'application démarre sur :
+By default, the app will be available at:
 ```
 http://127.0.0.1:5000/
 ```
 
 ## 🛠 Configuration
 
-Le fichier config.py contient des classes de configuration :
+The config.py file includes configuration classes:
 
-Config : Configuration de base
+Config: Base configuration
 
-DevelopmentConfig : Activation du mode debug par défaut
+DevelopmentConfig: Debug mode enabled by default
 
-Vous pouvez définir la variable d’environnement SECRET_KEY pour sécuriser votre application.
+You can set the SECRET_KEY environment variable to secure your application.
 
-## 🔧 Dépendances
+## 🔧 Dependencies
 
-Le fichier requirements.txt inclut :
+The requirements.txt file includes:
 
 ```
 
@@ -96,14 +107,14 @@ flask
 flask-restx
 ```
 
-## 🚧 État du projet
+## 🚧 Project Status
 
-✅ Structure en place
-✅ Repository en mémoire fonctionnel
-✅ Facade instanciée
-🕓 Routes API à implémenter dans les prochaines étapes
-🕓 Intégration base de données prévue en Partie 3
+✅ Project structure in place
+✅ Functional in-memory repository
+✅ Facade instantiated
+🕓 API routes to be implemented in upcoming steps
+🕓 Database integration planned for Part 3
 
-## 📄 Licence
+## 📄 License
 
-Projet pédagogique — Holberton School.
+Educational project — Holberton School.
