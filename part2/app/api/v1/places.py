@@ -69,6 +69,8 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
     def post(self):
         """Register a new place"""
         place_data = api.payload                 # Récupère les données
+        if "owner" not in place_data:
+            return {'error': "Missing 'owner' field"}, 400
         owner_id = place_data.get("owner")       # Récupère l'id du champ owner
         owner = facade.get_user(owner_id)    # Récup le user_id par le owner_id
         if not owner:                   # Si le owner n'est pas trouvé = Erreur
@@ -86,7 +88,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
                 'longitude': new_place.longitude,
                 'owner': new_place.owner
             }, 201
-        except ValueError as e:               # Utilise les methode de classe
+        except (ValueError, TypeError) as e:               # Utilise les methode de classe
             return {'error': str(e)}, 400     # Return obj error et code status
 
 # ------------------------------------------ Route POST & GET : /api/v1/places/
