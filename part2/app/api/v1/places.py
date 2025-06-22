@@ -64,9 +64,7 @@ place_update_model = api.model('PlaceUpdate', {    # "model" permet de déclarer
 class PlaceList(Resource):             # Récupération des méthodes par Resource
     @api.expect(place_model, validate=True)          # Vérifie avec place_model
     @api.response(201, 'Place successfully created')                    # OK
-    @api.response(400, 'Email already registered')                      # NOK
-    @api.response(400, 'Invalid input data or missing required field')  # NOK
-    @api.response(404, 'User not found')                                # NOK
+    @api.response(400, 'Bad request')                                # NOK
 # --------------------------------- Fonction pour enregister une nouvelle place
     def post(self):
         """Register a new place"""
