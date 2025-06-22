@@ -1,60 +1,32 @@
-"""
-Initialization of the Flask application for the HBnB project - Part 2:
-Authentication and Database.
-
-This module defines the `create_app()` factory function, which initializes
-the Flask application with the Flask-RESTX extension for building
-a RESTful API.
-
-Features:
-- Creation of the main Flask application instance.
-- Configuration of API documentation using Swagger UI at `/api/v1/`.
-- Prepared structure for future resource namespaces:
-    - users
-    - places
-    - reviews
-    - amenities
-
-To be implemented:
-- Registration of API namespaces in the `Api` object.
-- Integration of database and authentication extensions.
-"""
 from flask import Flask
 from flask_restx import Api
+#-------------------------------------------------------------- Import namespace
 
+from app.api.v1.users import api as users_ns                # users
+from app.api.v1.amenities import api as amenities_ns        # amenities
+from app.api.v1.places import api as places_ns              # places
+from app.api.v1.reviews import api as reviews_ns            # amenities
+#------------------------------------------------------------------- App et Docu
 
+# Fonction qui retourne l'application complète et la documentation Swagger
 def create_app():
-    """
-    Creates and configures the Flask application instance for the HBnB project.
-
-    This function initializes:
-    - The core Flask application.
-    - The Flask-RESTX extension for auto-generated API documentation.
-    - Base configuration of the API, including:
-        - title
-        - version
-        - description
-        - Swagger documentation path
-
-    Note:
-    - Resource namespaces will be added in future steps.
-
-    Returns:
-    - A configured Flask application instance.
-    """
-    app = Flask(__name__)
-    api = Api(
+    app = Flask(__name__)   # Création application Flask
+    api = Api(              # Infos pour la documentation Swagger
         app,
         version='1.0',
         title='HBnB API',
         description='HBnB Application API',
         doc='/api/v1/'
     )
+#------------------------------------------------------------------- App et Docu
 
-    # Placeholder for API namespaces (endpoints will be added later)
-    # Additional namespaces for:
-    # places
-    # reviews
-    # amenities will be added later
+    # Ajout du namespace de l'utilisateur à l'API principale
+    api.add_namespace(users_ns, path='/api/v1/users')
+    # Ajout du namespace de amenity à l'API principale
+    api.add_namespace(amenities_ns, path='/api/v1/amenities')
+    # Ajout du namespace de place à l'API principale
+    api.add_namespace(places_ns, path='/api/v1/places')
+    # Ajout du namespace de review à l'API principale
+    api.add_namespace(reviews_ns, path='/api/v1/reviews')
 
     return app
