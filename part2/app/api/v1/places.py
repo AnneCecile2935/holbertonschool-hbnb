@@ -17,6 +17,7 @@ Error handling returns appropriate HTTP status codes and messages.
 """
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from app.api.v1.users import user_place_model
 
 api = Namespace(  # Namespace permet de regrouper les routes pr une même entité
     'places',                           # Le nom du Namespace
@@ -64,15 +65,25 @@ place_update_model = api.model('PlaceUpdate', {    # "model" permet de déclarer
     'price': fields.Float(                          # "fields.String" = string
         required=False,                             # Champ non obligatoire
         description='Price per night'               # Description
-    ),
-    'latitude': fields.Float(                       # "fields.String" = string
-        required=False,                             # Champ non obligatoire
-        description='Latitude coordinate'           # Description
-    ),
-    'longitude': fields.Float(                      # "fields.String" = string
-        required=False,                             # Champ non obligatoire
-        description='Longitude coordinate'          # Description
     )
+})
+place_detail_model = api.model('PlaceDetailModel', {
+    'id': fields.String(),
+    'title': fields.String(),
+    'description': fields.String(),
+    'price': fields.Float(),
+    'latitude': fields.Float(),
+    'longitude': fields.Float(),
+    'owner': fields.Nested(user_place_model),
+    'amenities': fields.List(fields.Nested(api.model('AmenityMiniModel', {
+        'id': fields.String(),
+        'name': fields.String()
+    }))),
+    'reviews': fields.List(fields.Nested(api.model('ReviewMiniModel', {
+        'id': fields.String(),
+        'rating': fields.Integer(),
+        'comment': fields.String()
+    })))
 })
 
 
@@ -101,7 +112,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         owner_id = place_data.get("owner")       # Récupère l'id du champ owner
         owner = facade.get_user(owner_id)    # Récup le user_id par le owner_id
         if not owner:                   # Si le owner n'est pas trouvé = Erreur
-            return {'error': 'Owner user not found'}, 404
+            return {'error': 'Owner user not found'}, 400
 
         try:
             # Vérifie les données et si OK crée une nouvelle place
@@ -146,6 +157,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
 @api.route('/<place_id>')              # Création d'une route
 class PlaceResource(Resource):         # Récupération des méthodes par Resource
     """Resource for retrieving and updating a specific place by ID."""
+    @api.response(200, 'Place found', place_detail_model)
     @api.response(200, 'Place details retrieved successfully')  # OK
     @api.response(404, 'Place not found')                       # NOK
     @api.response(404, 'Owner not found')                       # NOK
@@ -168,20 +180,24 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
         owner = facade.get_user(place.owner)      # Récupère le owner
         if not owner:                             # Si il n'existe pas = Erreur
             return {'error': 'Owner not found'}, 404
-        return {                                  # Sinon return la place
+        amenities = facade.get_amenities_by_place(place.id)
+        reviews = facade.get_reviews_by_place(place.id)
+        return {
             'id': place.id,
-
+            'title': place.title,
             'description': place.description,
             'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
             'owner': {
-                    'id': owner.id,
-                    'first_name': owner.first_name,
-                    'last_name': owner.last_name,
-                    'email': owner.email
-            }
-        }, 200                                    # Récupération OK
+                'id': owner.id,
+                'first_name': owner.first_name,
+                'last_name': owner.last_name,
+                'email': owner.email
+            },
+            'amenities': amenities,
+            'reviews': reviews
+    }, 200                              # Récupération OK
 
 # --------------------------------- Route GET & PUT : /api/v1/places/<place_id>
     @api.expect(place_update_model, validate=True)
@@ -221,8 +237,8 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
                 'description': updated_place.description,
                 'title': updated_place.title,
                 'price': updated_place.price,
-                'latitude': updated_place.latitude,
-                'longitude': updated_place.longitude,
             }, 200
         except ValueError as ve:
             return {'error': str(ve)}, 400
+        except Exception as e:
+            return {'error': f'Unexpected error: {str(e)}'}, 400

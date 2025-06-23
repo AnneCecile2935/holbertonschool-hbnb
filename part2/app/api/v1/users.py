@@ -38,26 +38,35 @@ user_model = api.model('User', {                # "model" permet de déclarer
         description='Email of the user'         # Description
     )
 })
+user_place_model = api.model('UserPlaceModel', {                 # "model" permet de déclarer
+    'id': fields.String(                         # Ajout de l'ID
+        required=True,                           # Champ obligatoire
+        description='Unique identifier of the user'  # Description
+    ),
+    'first_name': fields.String(                 # "fields.String" = string
+        required=True,                           # Champ obligatoire
+        description='First name of the user'     # Description
+    ),
+    'last_name': fields.String(
+        required=True,                           # Champ obligatoire
+        description='Last name of the user'      # Description
+    ),
+    'email': fields.String(
+        required=True,                           # Champ obligatoire
+        description='Email of the user'          # Description
+    )
+})
 
 
 # ------------------------------------------- Route POST & GET : /api/v1/users/
 @api.route('/')                 # Création d'une route
 class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
-    """Resource to create a new user and retrieve all users."""
     @api.expect(user_model, validate=True)            # Vérifie avec user_model
     @api.response(201, 'User successfully created')                       # OK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
 # ------------------------------------ Fonction pour enregister un nouveau user
     def post(self):
-        """
-        Register a new user.
-
-        Expects JSON payload matching user_model.
-
-        Returns:
-            dict: Created user data with HTTP 201 on success,
-                  or error message with HTTP 400 on failure.
-        """
+        """Register a new user"""
         try:
             user_data = api.payload    # Récup les datas envoyées par le client
             # Vérifie les données et si ok crée un nouvel user
@@ -75,12 +84,7 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
     @api.response(200, 'List of users retrieved successfully')
 # ---------------------------------- Fonction pour récupérer la liste des users
     def get(self):
-        """
-        Retrieve a list of all users.
-
-        Returns:
-            list: List of users with HTTP 200 status.
-        """
+        """Get all users"""
         users = facade.get_all_users()    # Récupère les users dans le _storage
         users_list = []                   # Crée une liste de vide
         for user in users:                # Boucle dans le _storage
@@ -97,21 +101,11 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
 @api.route('/<user_id>')        # Création d'une route
 class UserResource(Resource):   # Récupération des méthodes par Resource
-    """Resource to retrieve and update a user by their ID."""
     @api.response(200, 'User details retrieved successfully')   # OK
     @api.response(404, 'User not found')                        # NOK
 # ---------------------------------- Fonction pour récupérer un user par son id
     def get(self, user_id):
-        """
-        Get user details by ID.
-
-        Args:
-            user_id (str): The ID of the user.
-
-        Returns:
-            dict: User details with HTTP 200 on success,
-                  or error message with HTTP 404 if not found.
-        """
+        """Get user details by ID"""
         user = facade.get_user(user_id)           # Récupère l'id par la façade
         if not user:                                    # Si user id pas trouvé
             return {'error': 'User not found'}, 404     # Erreur
@@ -129,18 +123,7 @@ class UserResource(Resource):   # Récupération des méthodes par Resource
     @api.response(400, 'Invalid input data or email already registered')
 # ----------------------------------- Fonction pour modifier un user par son id
     def put(self, user_id):
-        """
-        Update user details by ID.
-
-        Args:
-            user_id (str): The ID of the user.
-
-        Expects JSON payload matching user_model.
-
-        Returns:
-            dict: Updated user data with HTTP 200 on success,
-                  or error message with HTTP 400 or 404 on failure.
-        """
+        """Put user details by ID"""
         try:
             update_data = api.payload              # Récupère nouvelles données
             # Vérifie les nouvelles données et si OK modifie le user

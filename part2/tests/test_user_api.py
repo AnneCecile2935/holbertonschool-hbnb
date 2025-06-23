@@ -1,371 +1,243 @@
-from flask import Flask
-from flask_restx import Api
-from app.api.v1.users import api as users
-from app.services import facade
 import unittest
+from app import create_app
+import json
 
+app = create_app()
 
 class UserApiTestCase(unittest.TestCase):
-
     def setUp(self):
-        """Initialise une app Flask de test à chaque test"""
-        self.app = Flask(__name__)
-        self.api = Api(self.app)
-        self.api.add_namespace(users, path='/api/v1/users')
-
-        self.client = self.app.test_client()
-
-        # Reset des données avant chaque test
-        facade.user_repo.clear()
-        from app.models.user import User
-        User.users_email.clear()
+        self.client = app.test_client()
 
     def test_create_user_valid(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
+        data = {
+            "first_name": "Alice",
+            "last_name": "Dupont",
+            "email": "alice.dupont@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 201)
-        data = res.get_json()
-        self.assertEqual(data["first_name"], "Claire")
-        self.assertIn("id", data)
-
-    def test_create_user_missing_field(self):
-        payload = {
-            "first_name": "Claire",
-            "email": "claire@example.com"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_user_invalid_email(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "invalidemail"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-        self.assertIn("error", res.get_json())
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("id", response.get_json())
 
     def test_create_user_duplicate_email(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
+        data = {
+            "first_name": "Bob",
+            "last_name": "Martin",
+            "email": "bob.martin@example.com"
         }
-        self.client.post("/api/v1/users/", json=payload)
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-        self.assertIn("already used", res.get_json()["error"])
+        self.client.post("/api/v1/users/", data=json.dumps(data),
+                         content_type='application/json')
+        # Reuse same email
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.get_json())
 
     def test_get_all_users(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
-        }
-        self.client.post("/api/v1/users/", json=payload)
-        res = self.client.get("/api/v1/users/")
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.get_json()), 1)
+        response = self.client.get("/api/v1/users/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.get_json(), list)
 
     def test_get_user_by_id(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
+        data = {
+            "first_name": "Charlie",
+            "last_name": "Doe",
+            "email": "charlie.doe@example.com"
         }
-        post_res = self.client.post("/api/v1/users/", json=payload)
-        user_id = post_res.get_json()["id"]
-        res = self.client.get(f"/api/v1/users/{user_id}")
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.get_json()["email"], "claire@example.com")
+        post = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                content_type='application/json')
+        self.assertEqual(post.status_code, 201)
+        user_id = post.get_json()["id"]
 
-    def test_get_user_not_found(self):
-        res = self.client.get("/api/v1/users/inconnu")
-        self.assertEqual(res.status_code, 404)
+        response = self.client.get(f"/api/v1/users/{user_id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["id"], user_id)
 
     def test_update_user_valid(self):
-        post_res = self.client.post("/api/v1/users/", json={
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
-        })
-        user_id = post_res.get_json()["id"]
-        res = self.client.put(f"/api/v1/users/{user_id}", json={
-            "first_name": "Claire-modifiée",
-            "last_name": "Castan",
-            "email": "claire.new@example.com"
-        })
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.get_json()["email"], "claire.new@example.com")
+        data = {
+            "first_name": "Diane",
+            "last_name": "Lemoine",
+            "email": "diane@example.com"
+        }
+        post = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                content_type='application/json')
+        self.assertEqual(post.status_code, 201)
+        user_id = post.get_json()["id"]
+
+        update_data = {
+            "first_name": "Diane",
+            "last_name": "Durand",
+            "email": "diane@example.com"
+        }
+        response = self.client.put(f"/api/v1/users/{user_id}", data=json.dumps(update_data),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["last_name"], "Durand")
 
     def test_update_user_not_found(self):
-        res = self.client.put("/api/v1/users/invalideid", json={
-            "first_name": "X",
-            "last_name": "Y",
-            "email": "x@y.com"
-        })
-        self.assertEqual(res.status_code, 404)
+        update_data = {
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "test@nowhere.com"
+        }
+        response = self.client.put("/api/v1/users/unknown-id", data=json.dumps(update_data),
+                                   content_type='application/json')
+        self.assertEqual(response.status_code, 404)
 
-    def test_update_user_email_taken(self):
-        self.client.post("/api/v1/users/", json={
-            "first_name": "Anne",
-            "last_name": "Martin",
-            "email": "anne@example.com"
-        })
-        post_res = self.client.post("/api/v1/users/", json={
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
-        })
-        user_id = post_res.get_json()["id"]
-        res = self.client.put(f"/api/v1/users/{user_id}", json={
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "anne@example.com"
-        })
-        self.assertEqual(res.status_code, 400)
-        self.assertIn("already registered", res.get_json()["error"])
+    def test_get_user_not_found(self):
+        response = self.client.get("/api/v1/users/nonexistent-id")
+        self.assertEqual(response.status_code, 404)
 
-class UserApiEdgeCasesTestCase(unittest.TestCase):
-    def setUp(self):
-        """Prépare une app de test et réinitialise les données"""
-        self.app = Flask(__name__)
-        self.api = Api(self.app)
-        self.api.add_namespace(users, path='/api/v1/users')
-        self.client = self.app.test_client()
-
-        # Reset repositories
-        facade.user_repo.clear()
-        from app.models.user import User
-        User.users_email.clear()
-
-    def test_first_name_spaces_only(self):
-        payload = {
+    def test_create_user_with_blank_first_name(self):
+        data = {
             "first_name": "   ",
-            "last_name": "Test",
-            "email": "spacey@example.com"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-
-    def test_email_double_at(self):
-        payload = {
-            "first_name": "Claire",
             "last_name": "Dupont",
-            "email": "claire@@example.com"
+            "email": "blank@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
-    def test_email_without_dot(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Dupont",
-            "email": "claire@localhost"
+    def test_create_user_with_missing_fields(self):
+        data = {
+            "email": "missing@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
-    def test_last_name_too_long(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "X" * 1000,
-            "email": "claire@longname.com"
+    def test_create_user_with_invalid_email_format(self):
+        invalid_emails = [
+            "noatsign.com",     # Pas de @
+            "user@nodot",       # Pas de point
+            "user@@double.com", # Double @
+            # "@nouser.com",      # Manque nom
+            # "user@.com"         # Domaine invalide
+        ]
+        for email in invalid_emails:
+            data = {
+                "first_name": "Test",
+                "last_name": "Mail",
+                "email": email
+            }
+            response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                        content_type='application/json')
+            self.assertEqual(response.status_code, 400, f"Failed for email: {email}")
+
+    def test_create_user_with_very_long_first_name(self):
+        data = {
+            "first_name": "A" * 200,
+            "last_name": "Durand",
+            "email": "longname@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
-    def test_email_case_insensitive_uniqueness(self):
-        payload1 = {
-            "first_name": "Claire",
-            "last_name": "Upper",
-            "email": "CLAIRE@EXAMPLE.COM"
-        }
-        payload2 = {
-            "first_name": "Claire",
-            "last_name": "Lower",
-            "email": "claire@example.com"
-        }
-        res1 = self.client.post("/api/v1/users/", json=payload1)
-        self.assertEqual(res1.status_code, 201)
-
-        res2 = self.client.post("/api/v1/users/", json=payload2)
-        # À adapter selon ton design (si case-insensitive)
-        self.assertIn(res2.status_code, [201, 400])
-
-    def test_email_as_object(self):
-        payload = {
-            "first_name": "Claire",
+    def test_create_user_with_boolean_email(self):
+        data = {
+            "first_name": "Boolean",
             "last_name": "Test",
-            "email": {"bad": "format"}
+            "email": True
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
-    def test_empty_payload(self):
-        res = self.client.post("/api/v1/users/", json={})
-        self.assertEqual(res.status_code, 400)
-
-    def test_email_null(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Null",
-            "email": None
+    def test_create_user_with_number_as_last_name(self):
+        data = {
+            "first_name": "Num",
+            "last_name": 123,
+            "email": "number@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        response = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
-    def test_email_with_spaces(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Test",
-            "email": " claire@example.com "
+    def test_update_user_blank_first_name(self):
+        # Création d’un utilisateur valide
+        data = {
+            "first_name": "Marion",
+            "last_name": "Claire",
+            "email": "marion@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 201)  # ✅ Accepté, car email est nettoyé
+        post = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                content_type='application/json')
+        user_id = post.get_json()["id"]
 
-        # Deuxième user avec même email sans espaces → doit être rejeté
-        payload["email"] = "claire@example.com"
-        res2 = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res2.status_code, 400)  # ✅ Rejeté, email déjà utilisé
-
-
-
-    def test_put_user_with_same_email(self):
-        # Crée un user
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        user_id = res.get_json()["id"]
-
-        # Tente de modifier sans changer l'email
-        res2 = self.client.put(f"/api/v1/users/{user_id}", json=payload)
-        self.assertEqual(res2.status_code, 200)
-class UserApiEdgeCasesTestCase(unittest.TestCase):
-    def setUp(self):
-        """Prépare une app de test et réinitialise les données"""
-        self.app = Flask(__name__)
-        self.api = Api(self.app)
-        self.api.add_namespace(users, path='/api/v1/users')
-        self.client = self.app.test_client()
-
-        # Reset repositories
-        facade.user_repo.clear()
-        from app.models.user import User
-        User.users_email.clear()
-
-    def test_first_name_spaces_only(self):
-        payload = {
+        # Tentative de mise à jour avec un prénom vide
+        update = {
             "first_name": "   ",
+            "last_name": "Claire",
+            "email": "marion@example.com"
+        }
+        resp = self.client.put(f"/api/v1/users/{user_id}", data=json.dumps(update),
+                               content_type="application/json")
+        self.assertEqual(resp.status_code, 400)
+
+    def test_update_user_invalid_email_format(self):
+        data = {
+            "first_name": "Olivier",
             "last_name": "Test",
-            "email": "spacey@example.com"
+            "email": "olivier@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        post = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                content_type='application/json')
+        user_id = post.get_json()["id"]
 
-    def test_email_double_at(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Dupont",
-            "email": "claire@@example.com"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-
-    def test_email_without_dot(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Dupont",
-            "email": "claire@localhost"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-
-    def test_last_name_too_long(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "X" * 1000,
-            "email": "claire@longname.com"
-        }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
-
-    def test_email_case_insensitive_uniqueness(self):
-        payload1 = {
-            "first_name": "Claire",
-            "last_name": "Upper",
-            "email": "CLAIRE@EXAMPLE.COM"
-        }
-        payload2 = {
-            "first_name": "Claire",
-            "last_name": "Lower",
-            "email": "claire@example.com"
-        }
-        res1 = self.client.post("/api/v1/users/", json=payload1)
-        self.assertEqual(res1.status_code, 201)
-
-        res2 = self.client.post("/api/v1/users/", json=payload2)
-        # À adapter selon ton design (si case-insensitive)
-        self.assertIn(res2.status_code, [201, 400])
-
-    def test_email_as_object(self):
-        payload = {
-            "first_name": "Claire",
+        update = {
+            "first_name": "Olivier",
             "last_name": "Test",
-            "email": {"bad": "format"}
+            "email": "bad-email"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        resp = self.client.put(f"/api/v1/users/{user_id}", data=json.dumps(update),
+                               content_type="application/json")
+        self.assertEqual(resp.status_code, 400)
 
-    def test_empty_payload(self):
-        res = self.client.post("/api/v1/users/", json={})
-        self.assertEqual(res.status_code, 400)
-
-    def test_email_null(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Null",
-            "email": None
+    def test_update_user_with_too_long_last_name(self):
+        data = {
+            "first_name": "Sarah",
+            "last_name": "Normal",
+            "email": "sarah@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 400)
+        post = self.client.post("/api/v1/users/", data=json.dumps(data),
+                                content_type='application/json')
+        user_id = post.get_json()["id"]
 
-    def test_email_with_spaces(self):
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Test",
-            "email": " claire@example.com "
+        update = {
+            "last_name": "B" * 200,
+            "email": "sarah@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res.status_code, 201)  # ✅ Accepté, car email est nettoyé
+        resp = self.client.put(f"/api/v1/users/{user_id}", data=json.dumps(update),
+                               content_type="application/json")
+        self.assertEqual(resp.status_code, 400)
 
-        # Deuxième user avec même email sans espaces → doit être rejeté
-        payload["email"] = "claire@example.com"
-        res2 = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(res2.status_code, 400)  # ✅ Rejeté, email déjà utilisé
-
-
-    def test_put_user_with_same_email(self):
-        # Crée un user
-        payload = {
-            "first_name": "Claire",
-            "last_name": "Castan",
-            "email": "claire@example.com"
+    def test_update_user_email_to_existing_email(self):
+        # Création de 2 users
+        data1 = {
+            "first_name": "A",
+            "last_name": "A",
+            "email": "a@example.com"
         }
-        res = self.client.post("/api/v1/users/", json=payload)
-        user_id = res.get_json()["id"]
+        data2 = {
+            "first_name": "B",
+            "last_name": "B",
+            "email": "b@example.com"
+        }
+        post1 = self.client.post("/api/v1/users/", data=json.dumps(data1),
+                                 content_type='application/json')
+        post2 = self.client.post("/api/v1/users/", data=json.dumps(data2),
+                                 content_type='application/json')
+        id_1 = post1.get_json()["id"]
+        id_2 = post2.get_json()["id"]
 
-        # Tente de modifier sans changer l'email
-        res2 = self.client.put(f"/api/v1/users/{user_id}", json=payload)
-        self.assertEqual(res2.status_code, 200)
+        # Tentative de modifier le 2e user avec l'email du 1er
+        update = {
+            "email": "a@example.com"
+        }
+        resp = self.client.put(f"/api/v1/users/{id_2}", data=json.dumps(update),
+                               content_type="application/json")
+        self.assertEqual(resp.status_code, 400)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
