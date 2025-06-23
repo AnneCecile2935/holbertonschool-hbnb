@@ -67,22 +67,25 @@ place_update_model = api.model('PlaceUpdate', {    # "model" permet de déclarer
         description='Price per night'               # Description
     )
 })
+# ------------------------------------------------ modèle de données détaillées
 place_detail_model = api.model('PlaceDetailModel', {
-    'id': fields.String(),
-    'title': fields.String(),
-    'description': fields.String(),
-    'price': fields.Float(),
-    'latitude': fields.Float(),
-    'longitude': fields.Float(),
-    'owner': fields.Nested(user_place_model),
+    'id': fields.String(),                          # "fields.String" = string
+    'title': fields.String(),                       # "fields.String" = string
+    'description': fields.String(),                 # "fields.String" = string
+    'price': fields.Float(),                        # "fields.Float" = Float
+    'latitude': fields.Float(),                     # "fields.Float" = Float
+    'longitude': fields.Float(),                    # "fields.Float" = Float
+    'owner': fields.Nested(user_place_model),       # "fields.Nested" = Dict
+    # fields.List = une liste qui contient des sous dictionnaires : Nested
     'amenities': fields.List(fields.Nested(api.model('AmenityMiniModel', {
-        'id': fields.String(),
-        'name': fields.String()
+        'id': fields.String(),                      # "fields.String" = string
+        'name': fields.String()                     # "fields.String" = string
     }))),
+    # fields.List = une liste qui contient des sous dictionnaires : Nested
     'reviews': fields.List(fields.Nested(api.model('ReviewMiniModel', {
-        'id': fields.String(),
-        'rating': fields.Integer(),
-        'comment': fields.String()
+        'id': fields.String(),                      # "fields.String" = string
+        'rating': fields.Integer(),                # "fields.Integer" = Integer
+        'comment': fields.String()                  # "fields.String" = string
     })))
 })
 
@@ -93,7 +96,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
     """Resource for creating a new place and listing all places."""
     @api.expect(place_model, validate=True)          # Vérifie avec place_model
     @api.response(201, 'Place successfully created')                    # OK
-    @api.response(400, 'Bad request')                                # NOK
+    @api.response(400, 'Bad request')                                   # NOK
 # --------------------------------- Fonction pour enregister une nouvelle place
     def post(self):
         """
@@ -126,7 +129,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
                 'longitude': new_place.longitude,
                 'owner': new_place.owner
             }, 201
-        except (ValueError, TypeError) as e:               # Utilise les methode de classe
+        except (ValueError, TypeError) as e:    # Utilise les methode de classe
             return {'error': str(e)}, 400     # Return obj error et code status
 
 # ------------------------------------------ Route POST & GET : /api/v1/places/
@@ -180,7 +183,9 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
         owner = facade.get_user(place.owner)      # Récupère le owner
         if not owner:                             # Si il n'existe pas = Erreur
             return {'error': 'Owner not found'}, 404
+        # Récupération des amenities d'une place par la facade
         amenities = facade.get_amenities_by_place(place.id)
+        # Récupération des reviews d'une place par la facade
         reviews = facade.get_reviews_by_place(place.id)
         return {
             'id': place.id,
@@ -197,7 +202,7 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
             },
             'amenities': amenities,
             'reviews': reviews
-    }, 200                              # Récupération OK
+        }, 200                                          # Récupération OK
 
 # --------------------------------- Route GET & PUT : /api/v1/places/<place_id>
     @api.expect(place_update_model, validate=True)
@@ -222,9 +227,9 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
         """
         try:
             place = facade.get_place(place_id)  # Récupère la place par sont id
-            if not place:  # Si la place n'est pas trouvée = Erreur
+            if not place:              # Si la place n'est pas trouvée = Erreur
                 return {'error': 'Place not found'}, 404
-            update_data = api.payload  # Récupère les nouvelles données
+            update_data = api.payload          # Récupère les nouvelles données
             # Vérification que un champ owner est été remplis
             if 'owner' in update_data:
                 return {

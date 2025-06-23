@@ -38,8 +38,8 @@ user_model = api.model('User', {                # "model" permet de déclarer
         description='Email of the user'         # Description
     )
 })
-user_place_model = api.model('UserPlaceModel', {                 # "model" permet de déclarer
-    'id': fields.String(                         # Ajout de l'ID
+user_place_model = api.model('UserPlaceModel', {   # "model" permet de déclarer
+    'id': fields.String(                         # "fields.String" = string
         required=True,                           # Champ obligatoire
         description='Unique identifier of the user'  # Description
     ),
@@ -47,11 +47,11 @@ user_place_model = api.model('UserPlaceModel', {                 # "model" perme
         required=True,                           # Champ obligatoire
         description='First name of the user'     # Description
     ),
-    'last_name': fields.String(
+    'last_name': fields.String(                  # "fields.String" = string
         required=True,                           # Champ obligatoire
         description='Last name of the user'      # Description
     ),
-    'email': fields.String(
+    'email': fields.String(                      # "fields.String" = string
         required=True,                           # Champ obligatoire
         description='Email of the user'          # Description
     )
@@ -61,6 +61,7 @@ user_place_model = api.model('UserPlaceModel', {                 # "model" perme
 # ------------------------------------------- Route POST & GET : /api/v1/users/
 @api.route('/')                 # Création d'une route
 class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
+    """Resource to create a new user and retrieve all users."""
     @api.expect(user_model, validate=True)            # Vérifie avec user_model
     @api.response(201, 'User successfully created')                       # OK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
@@ -101,6 +102,7 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
 @api.route('/<user_id>')        # Création d'une route
 class UserResource(Resource):   # Récupération des méthodes par Resource
+    """Resource for retrieving and updating, a user by its ID."""
     @api.response(200, 'User details retrieved successfully')   # OK
     @api.response(404, 'User not found')                        # NOK
 # ---------------------------------- Fonction pour récupérer un user par son id
@@ -118,9 +120,9 @@ class UserResource(Resource):   # Récupération des méthodes par Resource
 
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
     @api.expect(user_model, validate=True)            # Vérifie avec user_model
-    @api.response(200, 'User modified successfully')
-    @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input data or email already registered')
+    @api.response(200, 'User modified successfully')                      # OK
+    @api.response(404, 'User not found')                                  # NOK
+    @api.response(400, 'Invalid input data or email already registered')  # NOK
 # ----------------------------------- Fonction pour modifier un user par son id
     def put(self, user_id):
         """Put user details by ID"""
