@@ -1,21 +1,34 @@
-# Interaction Between API, Facade, and Repository/Models During User Creation
+# Interaction Between API, Facade, and Repository/Models During User Creation 🚀
 
-## Context
+## Context 🌍
 
 Creating a user in a typical RESTful architecture based on Flask (API), a facade layer, and a data access layer (repository/models) involves multiple collaborative steps. This separation of concerns helps organize code, ease maintenance, and ensure system robustness.
 
+
+```mermaid
+
+sequenceDiagram
+    participant API
+    participant Facade
+    participant User
+
+    API->>Facade: create_user(user_data)
+    Facade->>User: create_instance(user_data)
+    User-->>Facade: user_instance
+    Facade-->>API: user_created_response
+```
 ---
 
-## 1. API (Application Programming Interface)
+## 1. API (Application Programming Interface) 🛠️
 
-### Role
+### Role 🎯
 
 - Exposes an HTTP endpoint (e.g., POST `/users`) allowing clients (frontend, tests, third parties) to send user creation data.
 - Validates incoming data using schemas (e.g., via Flask-RESTx or Marshmallow).
 - Orchestrates the creation process by calling the facade with validated data.
 - Handles HTTP responses based on the outcome (success, validation error, business logic error).
 
-### Example Workflow
+### Example Workflow 🔄
 
 1. The client sends a POST request with a JSON containing user information (e.g., name, email, password).
 2. The API validates the format and required fields presence.
@@ -24,9 +37,9 @@ Creating a user in a typical RESTful architecture based on Flask (API), a facade
 
 ---
 
-## 2. Facade (Business Logic Layer)
+## 2. Facade (Business Logic Layer) 🧩
 
-### Role
+### Role 🎯
 
 - Centralizes business logic related to user creation.
 - Transforms received data into business objects (models).
@@ -34,7 +47,7 @@ Creating a user in a typical RESTful architecture based on Flask (API), a facade
 - Manages persistence by interacting with the repository.
 - Returns the created user object or raises errors back to the API.
 
-### Example Workflow
+### Example Workflow 🔄
 
 1. The facade receives user data from the API.
 2. It instantiates a `User` object from the data, triggering validations in the model constructor.
@@ -44,15 +57,15 @@ Creating a user in a typical RESTful architecture based on Flask (API), a facade
 
 ---
 
-## 3. Repository / Models (Data Access Layer)
+## 3. Repository / Models (Data Access Layer) 💾
 
-### Role
+### Role 🎯
 
 - Manages persistence of user data in storage (in-memory, file, SQL database, etc.).
 - Provides methods to add, retrieve, update, or delete users.
 - Models represent business entities with attributes and associated validations.
 
-### Example Workflow
+### Example Workflow 🔄
 
 1. The facade passes the `User` object to the repository.
 2. The repository adds this object to its storage structure (e.g., in-memory dictionary, SQL database).
@@ -61,7 +74,7 @@ Creating a user in a typical RESTful architecture based on Flask (API), a facade
 
 ---
 
-## 4. Summary of the Complete Flow
+## 4. Summary of the Complete Flow 📋
 
 | Step | Component  | Action                                                    |
 |-------|-----------|-----------------------------------------------------------|
@@ -75,14 +88,16 @@ Creating a user in a typical RESTful architecture based on Flask (API), a facade
 
 ---
 
-## 5. Simplified Diagram
+## 5. Simplified Diagram 🖼️
 
 ```plaintext
 Client --> API --> Facade --> Repository --> Database
 
+```
+
 ---
 
-## 6.Conclusion
+## 6.Conclusion 🤝
 
 User creation is the result of clear collaboration between:
 
