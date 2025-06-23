@@ -112,7 +112,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         owner_id = place_data.get("owner")       # Récupère l'id du champ owner
         owner = facade.get_user(owner_id)    # Récup le user_id par le owner_id
         if not owner:                   # Si le owner n'est pas trouvé = Erreur
-            return {'error': 'Owner user not found'}, 404
+            return {'error': 'Owner user not found'}, 400
 
         try:
             # Vérifie les données et si OK crée une nouvelle place
@@ -240,3 +240,5 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
             }, 200
         except ValueError as ve:
             return {'error': str(ve)}, 400
+        except Exception as e:
+            return {'error': f'Unexpected error: {str(e)}'}, 400
