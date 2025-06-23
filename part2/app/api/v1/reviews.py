@@ -106,7 +106,7 @@ class ReviewList(Resource):
     @api.expect(review_model, validate=True)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
-    @api.response(404, 'User or Place not found')
+    @api.response(400, 'User or Place not found')
     def post(self):
         """
         Register a new review.
@@ -133,7 +133,7 @@ class ReviewList(Resource):
 
             error_msg = str(e).lower()
             if "place not found" in error_msg or "user not found" in error_msg:
-                return {'error': str(e)}, 404
+                return {'error': str(e)}, 400
             return {'error': str(e)}, 400
 
     @api.response(200, 'List of reviews retrieved successfully')
@@ -217,11 +217,11 @@ class ReviewResource(Resource):
                 'text': updated_review.text,
                 'rating': updated_review.rating
             }, 200
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             return {'error': str(e)}, 400
 
 
-    @api.response(200, 'Review deleted successfully')
+    @api.response(204, 'Review deleted successfully')
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """
@@ -236,7 +236,7 @@ class ReviewResource(Resource):
         success = facade.delete_review(review_id)
         if not success:
             return {'error': 'Review not found'}, 404
-        return {'message': 'Review deleted successfully'}, 200
+        return {'message': 'Review deleted successfully'}, 204
 
 
 @api.route('/places/<place_id>/reviews')
@@ -257,7 +257,7 @@ class ReviewsByPlace(Resource):
         """
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found'}, 404
+            return {'error': 'Place not found'}, 400
 
         reviews = facade.get_reviews_by_place(place_id)
         return [
