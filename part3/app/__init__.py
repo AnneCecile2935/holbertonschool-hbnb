@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from config import DevelopmentConfig #import propre
+from flask_jwt_extended import JWTManager
 #-------------------------------------------------------------- Import namespace
 from flask_jwt_extended import JWTManager                   #extension génération de token
 from app.api.v1.users import api as users_ns                # users
@@ -14,7 +15,7 @@ jwt = JWTManager()
 bcrypt = Bcrypt() #rend accessible bcrypt depuis les autres modules
 authorizations = {
     'Bearer Auth': {
-       'type': 'apiKey',
+        'type': 'apiKey',
         'in': 'header',
         'name': 'Authorization',
         'description': 'Ajoutez un JWT avec **Bearer <token>**'
