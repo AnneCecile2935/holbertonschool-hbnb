@@ -16,6 +16,7 @@ Models:
 Error handling returns appropriate HTTP status codes and messages.
 """
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 from app.api.v1.users import user_place_model
 
@@ -98,6 +99,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
     @api.response(201, 'Place successfully created')                    # OK
     @api.response(400, 'Bad request')                                   # NOK
 # --------------------------------- Fonction pour enregister une nouvelle place
+    @jwt_required()
     def post(self):
         """
         Register a new place.
@@ -109,6 +111,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             JSON with new place details and HTTP 201 on success,
             or error message and appropriate HTTP code on failure.
         """
+        current_user = get_jwt_identity()
         place_data = api.payload                 # Récupère les données
         if "owner" not in place_data:
             return {'error': "Missing 'owner' field"}, 400
@@ -116,6 +119,8 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         owner = facade.get_user(owner_id)    # Récup le user_id par le owner_id
         if not owner:                   # Si le owner n'est pas trouvé = Erreur
             return {'error': 'Owner user not found'}, 400
+        elif owner_id != current_user['id']:
+            return {'error': 'Unauthorized action'}, 403
 
         try:
             # Vérifie les données et si OK crée une nouvelle place
@@ -209,6 +214,7 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
     @api.response(200, 'Place updated succesfully')
     @api.response(404, 'Place not found')
 # --------------------------------- Fonction pour modifier une place par son id
+    @jwt_required()
     def put(self, place_id):
         """
         Update a place by its ID.
@@ -226,8 +232,11 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
             or error message with HTTP 400 or 404 on failure.
         """
         try:
+            current_user = get_jwt_identity()
             place = facade.get_place(place_id)  # Récupère la place par sont id
-            if not place:              # Si la place n'est pas trouvée = Erreur
+            if str(place.owner) != current_user['id']:
+                return {'error': 'Unauthorized action'}, 403
+            elif not place:              # Si la place n'est pas trouvée = Erreur
                 return {'error': 'Place not found'}, 404
             update_data = api.payload          # Récupère les nouvelles données
             # Vérification que un champ owner est été remplis
