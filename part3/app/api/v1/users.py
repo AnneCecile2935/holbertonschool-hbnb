@@ -13,6 +13,7 @@ Models:
 - user_model: Schema for user creation and validation.
 """
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace(  # Namespace permet de regrouper les routes pr une même entité
@@ -60,7 +61,16 @@ user_place_model = api.model('UserPlaceModel', {   # "model" permet de déclarer
         description='Email of the user'          # Description
     )
 })
-
+user_update_model = api.model('UserUpdate', {
+    'first_name': fields.String(
+        required=False,
+        description='First name of the user'
+    ),
+    'last_name': fields.String(
+        required=False,
+        description='Last name of the user'
+    ),
+})
 
 # ------------------------------------------- Route POST & GET : /api/v1/users/
 @api.route('/')                 # Création d'une route
@@ -118,15 +128,19 @@ class UserResource(Resource):   # Récupération des méthodes par Resource
                                                         # Récupération OK
 
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
-    @api.expect(user_model, validate=True)            # Vérifie avec user_model
+    @api.expect(user_update_model, validate=True)            # Vérifie avec user_model
     @api.response(200, 'User modified successfully')                      # OK
     @api.response(404, 'User not found')                                  # NOK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
 # ----------------------------------- Fonction pour modifier un user par son id
+    @jwt_required()
     def put(self, user_id):
         """Put user details by ID"""
         try:
+            current_user = get_jwt_identity()
             update_data = api.payload              # Récupère nouvelles données
+            if user_id != current_user['id']:
+                return {'error': 'Unauthorized action'}, 403
             # Vérifie les nouvelles données et si OK modifie le user
             updated_user = facade.update_user(user_id, update_data)
             return {
