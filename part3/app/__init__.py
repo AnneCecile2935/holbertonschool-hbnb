@@ -48,7 +48,7 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
     # Ajout du namespace de review à l'API principale
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     # Ajout du namespace de auth à l'API principale
-    api.add_namespace(auth_ns, path="/api/v1")
+    api.add_namespace(auth_ns, path="/api/v1/auth")
 
 
 

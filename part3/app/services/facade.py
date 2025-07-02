@@ -26,6 +26,9 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
 
+    def get_user_by_id(self, user_id):
+        return self.user_repo.get_by_attribute('id', user_id)
+
     def get_all_users(self):
         return self.user_repo.get_all()  # Récupère et retourne tout les users
 
@@ -265,18 +268,6 @@ class HBnBFacade:
         self.review_repo.delete(review_id)
         return True
 
-    def authentificate_user(self, email, password):
-        """
-        Authenticate a user by email and password.
+    def get_review_by_id(self, review_id):
+        return self.review_repo.get(review_id)
 
-        Args:
-            email (str): The user's email address.
-            password (str): The user's plain-text password.
-
-        Returns:
-            User object if authentication is successful, otherwise None.
-        """
-        user = self.get_user_by_email(email)
-        if user and user.verify_password(password):
-            raise ValueError("Invalid email or password")
-        return user
