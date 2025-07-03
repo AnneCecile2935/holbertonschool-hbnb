@@ -38,6 +38,10 @@ user_model = api.model('User', {                # "model" permet de déclarer
         required=True,                          # Champ obligatoire
         description='Email of the user'         # Description
     ),
+    'is_admin':fields.Boolean(
+        required=True,
+        description='User is or not admin'
+    ),
     'user_password' : fields.String(
         required=True,
         description='User pass_word of new user will be hashed automatically'
