@@ -10,6 +10,7 @@ from app.api.v1.amenities import api as amenities_ns        # amenities
 from app.api.v1.places import api as places_ns              # places
 from app.api.v1.reviews import api as reviews_ns            # amenities
 from app.api.v1.auth import api as auth_ns
+from app.api.v1.admin import api as admin_ns
 #------------------------------------------------------------------- App et Docu
 jwt = JWTManager()
 bcrypt = Bcrypt() #rend accessible bcrypt depuis les autres modules
@@ -49,7 +50,8 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     # Ajout du namespace de auth à l'API principale
     api.add_namespace(auth_ns, path="/api/v1/auth")
-
+    # Ajout du namespace de auth à l'API principale
+    api.add_namespace(admin_ns, path="/api/v1/admin")
 
 
     return app
