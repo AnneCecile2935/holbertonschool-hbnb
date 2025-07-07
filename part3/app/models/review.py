@@ -16,7 +16,7 @@ The review is automatically added to the Place's list of reviews upon
 initialization if `place.add_review()` is defined.
 """
 
-
+from part3.app.extensions import db, bcrypt, jwt
 from app.models.base_model import BaseModel
 from app.models.user import User
 
@@ -34,7 +34,7 @@ class Review(BaseModel):
         an object with an `id`.
     """
     reviews_list = {}
-    
+
     def __init__(self, text, rating, place, user):
         """
         Initializes a new Review instance.
