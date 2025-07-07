@@ -3,8 +3,12 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from config import DevelopmentConfig #import propre
 from flask_jwt_extended import JWTManager
-#-------------------------------------------------------------- Import namespace
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from part3.app.extensions import db, bcrypt, jwt
 from flask_jwt_extended import JWTManager                   #extension génération de token
+#-------------------------------------------------------------- Import namespace
+
 from app.api.v1.users import api as users_ns                # users
 from app.api.v1.amenities import api as amenities_ns        # amenities
 from app.api.v1.places import api as places_ns              # places
@@ -12,8 +16,7 @@ from app.api.v1.reviews import api as reviews_ns            # amenities
 from app.api.v1.auth import api as auth_ns
 from app.api.v1.admin import api as admin_ns
 #------------------------------------------------------------------- App et Docu
-jwt = JWTManager()
-bcrypt = Bcrypt() #rend accessible bcrypt depuis les autres modules
+
 authorizations = {
     'Bearer Auth': {
         'type': 'apiKey',
@@ -28,6 +31,7 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
     app.config.from_object(config_class) # applique la configuration
     bcrypt.init_app(app)
     jwt.init_app(app)
+    db.init_app(app)
 
     api = Api(              # Infos pour la documentation Swagger
         app,
