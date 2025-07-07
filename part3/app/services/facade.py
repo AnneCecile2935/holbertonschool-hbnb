@@ -1,4 +1,5 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import SQLAlchemyRepository
+from app.persistence.repositories.user_repository import UserRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -7,39 +8,39 @@ from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        # Les methodes génériques sont importées
+        # par héritage aux methodes spécifiques
+        self.user_repository = UserRepository()
+        self.place_repository = SQLAlchemyRepository(Place)
+        self.review_repository = SQLAlchemyRepository(Review)
+        self.amenity_repository = SQLAlchemyRepository(Amenity)
 
 # -------------------------------------------------------- methodes facade user
 
     def create_user(self, user_data):
-        try:                    # Passe les données dans les méthodes de classe
-            user = User(**user_data)
-        except (ValueError, TypeError) as e:                        # Si erreur
-            raise ValueError(f"Invalid user data: {str(e)}")
+        # Passe les données dans les méthodes de classe
+        try:
+            user = User(**user_data)                     # Appel la classe User
+        except (ValueError, TypeError) as e:             # Si NOK
+            raise ValueError(f"Invalid user data: {str(e)}")  # Return erreur
 
-        self.user_repo.add(user)                     # Si OK ont ajoute le user
-        return user                                  # Return user
+        self.user_repository.add(user)         # Si OK ajout du user à la table
+        return user                            # Return user
 
-    def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+    def get_user_by_email(self, email):        # Récupère un user par son email
+        return self.user_repository.get_user_by_email(email)
 
-    def get_user_by_id(self, user_id):
-        return self.user_repo.get_by_attribute('id', user_id)
+    def get_all_users(self):              # Récupère et retourne tout les users
+        return self.user_repository.get_all()
 
-    def get_all_users(self):
-        return self.user_repo.get_all()  # Récupère et retourne tout les users
+    def get_user(self, user_id):          # Récupère et retourne l'user id
+        return self.user_repository.get(user_id)
 
-    def get_user(self, user_id):
-        return self.user_repo.get(user_id)  # Récupère et retourne  l'user id
-
-    def update_user(self, user_id, update_data):
+    def update_user(self, user_id, update_data):     # Modifie un user
         user = self.get_user(user_id)                # Récupère le user_id
-        if not user:                                 # Si pas trouvé = Erreur
-            raise ValueError("User not found")
-        if 'email' in update_data:                   # Si il y un champ 'email'
+        if not user:                                 # Vérifie si il existe
+            raise ValueError("User not found")       # Si NOK return erreur
+        if 'email' in update_data:           # Vérifie si il y un champ 'email'
             email = update_data['email']             # Récupère le new email
             existing_user = self.get_user_by_email(email)       # Vérifie email
             if existing_user and existing_user.id != user_id:
@@ -58,27 +59,27 @@ class HBnBFacade:
         except (ValueError, TypeError) as e:                        # Si erreur
             raise ValueError(f"Invalid amenity data: {str(e)}")
 
-        self.amenity_repo.add(amenity)             # Si OK ont ajoute l'amenity
+        self.amenity_repository.add(amenity)             # Si OK ont ajoute l'amenity
         return amenity                             # Return user
 
     def get_amenity_by_name(self, name):
         # Récupère et return l'amenity par sont name
-        return self.amenity_repo.get_by_attribute('name', name)
+        return self.amenity_repository.get_by_attribute('name', name)
 
     def get_all_amenities(self):
-        return self.amenity_repo.get_all()   # Récup et return tout les amenity
+        return self.amenity_repository.get_all()   # Récup et return tout les amenity
 
     def get_amenity(self, amenity_id):
-        return self.amenity_repo.get(amenity_id)  # Récup et return amenity id
+        return self.amenity_repository.get(amenity_id)  # Récup et return amenity id
 
     def update_amenity(self, amenity_id, update_data):
         # Récupère l'obj amenity par son id
-        amenity = self.amenity_repo.get(amenity_id)
+        amenity = self.amenity_repository.get(amenity_id)
         if not amenity:                    # Si l'amenity n'existe pas = Erreur
             raise ValueError("Amenity not found")
         try:
             # Mise à jour de l'amenity dans le repo
-            self.amenity_repo.update(amenity_id, update_data)
+            self.amenity_repository.update(amenity_id, update_data)
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid amenity data: {str(e)}")
 
@@ -87,7 +88,7 @@ class HBnBFacade:
     def get_amenities_by_place(self, place_id):
         # Exemple où chaque amenity a une liste des place_ids associées
         amenities_list = []
-        for amenity in self.amenity_repo.get_all():
+        for amenity in self.amenity_repository.get_all():
             # Supposons que amenity a un attribut place_ids qui est une liste d'IDs
             if place_id in amenity.get('place_ids', []):
                 amenities_list.append({
@@ -99,10 +100,10 @@ class HBnBFacade:
 # ------------------------------------------------------- methodes facade place
 
     def get_place(self, place_id):
-        return self.place_repo.get(place_id)
+        return self.place_repository.get(place_id)
 
     def get_reviews_by_place(self, place_id):
-        all_reviews = self.review_repo.get_all()  # Récupère toutes les reviews
+        all_reviews = self.review_repository.get_all()  # Récupère toutes les reviews
         filtered_reviews = []                     # Liste vide
 
         for review in all_reviews:                # Boucle sur les reviews
@@ -126,17 +127,17 @@ class HBnBFacade:
         try:
             # Passe les données dans les méthodes de classe
             place = Place(**place_data, owner=owner)
-            self.place_repo.add(place)    # Ajout de la place dans le storage
+            self.place_repository.add(place)    # Ajout de la place dans le storage
             return place                  # Return l'objet
         except (TypeError, ValueError) as e:
             raise ValueError(f"Invalid place data: {str(e)}")
 
     def get_all_places(self):
-        return self.place_repo.get_all()  # Récup et return tout les places
+        return self.place_repository.get_all()  # Récup et return tout les places
 
     def update_place(self, place_id, place_data):
         # Récupère l'obj place par son id
-        place = self.place_repo.get(place_id)
+        place = self.place_repository.get(place_id)
         if not place:                       # Si la place n'existe pas = Erreur
             raise ValueError("Place not found")
 
@@ -158,7 +159,7 @@ class HBnBFacade:
             list[Review]: List of reviews for the place.
         """
         return [
-            review for review in self.review_repo.get_all()
+            review for review in self.review_repository.get_all()
             if review.place_id == place_id
         ]
 
@@ -176,10 +177,10 @@ class HBnBFacade:
         Raises:
             ValueError: If place or user not found.
         """
-        place = self.place_repo.get(review_data['place_id'])
+        place = self.place_repository.get(review_data['place_id'])
         if not place:
             raise ValueError("Place not found")
-        user = self.user_repo.get(review_data['user_id'])
+        user = self.user_repository.get(review_data['user_id'])
         if not user:
             raise ValueError("User not found")
 
@@ -192,7 +193,7 @@ class HBnBFacade:
             )
         except (TypeError, ValueError) as e:
             raise ValueError(f"Invalid review: {str(e)}")
-        self.review_repo.add(review)
+        self.review_repository.add(review)
         return review
 
     def get_review(self, review_id):
@@ -206,7 +207,7 @@ class HBnBFacade:
             Review or None: The review instance if found, else None.
         """
 
-        return self.review_repo.get(review_id)
+        return self.review_repository.get(review_id)
 
     def get_all_reviews(self):
         """
@@ -215,7 +216,7 @@ class HBnBFacade:
         Returns:
             list[Review]: List of all reviews.
         """
-        return self.review_repo.get_all()
+        return self.review_repository.get_all()
 
     def update_review(self, review_id, update_data):
         """
@@ -262,12 +263,12 @@ class HBnBFacade:
         Returns:
             bool: True if the review was found and deleted, False otherwise.
         """
-        review = self.review_repo.get(review_id)
+        review = self.review_repository.get(review_id)
         if not review:
             return False
-        self.review_repo.delete(review_id)
+        self.review_repository.delete(review_id)
         return True
 
     def get_review_by_id(self, review_id):
-        return self.review_repo.get(review_id)
+        return self.review_repository.get(review_id)
 
