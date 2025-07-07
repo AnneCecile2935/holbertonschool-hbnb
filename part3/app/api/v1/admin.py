@@ -24,7 +24,7 @@ admin_user_model = api.model('Admin_User', {
         required=True,
         description='User is or not admin'
     ),
-    'user_password' : fields.String(
+    'password' : fields.String(
         required=True,
         description='User pass_word of new user will be hashed automatically'
     )
@@ -39,7 +39,7 @@ admin_user_update_model = api.model('Admin_UserUpdate', {
     'email': fields.String(
         description='Email of the user'         # Description
     ),
-    'user_password' : fields.String(
+    'password' : fields.String(
         description='User pass_word of new user will be hashed automatically'
     )
 })
