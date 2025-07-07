@@ -9,7 +9,7 @@ The class inherits from BaseModel, which provides a unique identifier
 and timestamps for creation and updates.
 """
 from .base_model import BaseModel
-
+from part3.app.extensions import db, bcrypt, jwt
 
 class Place(BaseModel):
     """
