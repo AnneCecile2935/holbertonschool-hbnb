@@ -30,7 +30,8 @@ class DevelopmentConfig(Config):
     Inherits from the base Config class and enables debug mode.
     """
     DEBUG = True
-
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 config = {
     'development': DevelopmentConfig,
