@@ -7,11 +7,11 @@ last name, email (unique and validated), and admin status.
 Includes property setters with validation and email uniqueness
 tracking across all User instances.
 """
-
-
+from part3.app.extensions import db, bcrypt, jwt
+from sqlalchemy.ext.hybrid import hybrid_property
+# from sqlalchemy.orm import relationship
 from app.models.base_model import BaseModel
-
-from datetime import datetime
+import re                                       # Validation syntaxe de l'email
 
 
 class User(BaseModel):
@@ -20,10 +20,34 @@ class User(BaseModel):
     Represents a user with first name, last name, email, and admin status.
     Ensures email uniqueness and validity.
     """
-    users_email = {}
+    __tablename__ = 'users'                      # Création de la table 'users'
+# ------------------------------------- Création des colonnes de la table users
+# Relier les attributs privés aux colonnes de la BDD avec paramètres
+    _first_name = db.Column(
+        db.String(50),
+        nullable=False)
+    _last_name = db.Column(
+        db.String(50),
+        nullable=False)
+    _email = db.Column(
+        db.String(120),
+        nullable=False,
+        unique=True)
+    _password_hash = db.Column(
+        db.String(128),
+        nullable=False)
+    _is_admin = db.Column(
+        db.Boolean,
+        default=False)
 
+    # places = relationship(               Relation entre le user et ses places
+    # "Place",
+    # backref="user",
+    # cascade="all,
+    # delete-orphan")
+# --------------------------------------- Définition des attributs de la classe
     def __init__(
-        self, first_name, last_name, email, user_password, is_admin=False
+        self, first_name, last_name, email, password, is_admin=False
     ):
         """
         Initialize a new User instance.
@@ -43,9 +67,10 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
-        self.place = []
-        self.password = user_password
+        self.place = []  # Va disparaitre remplacé par la liaison avec la BDD
+        self.password = password
 
+# ---------------------------------------- Représentation visuelle de la classe
     def __repr__(self):
         return (
             f"\nUser = (\n"
@@ -59,7 +84,8 @@ class User(BaseModel):
             f")"
         )
 
-    @property
+# ------------------------------------------------------- Gestion du first_name
+    @hybrid_property
     def first_name(self):
         """
         Get the user's first name.
@@ -87,11 +113,11 @@ class User(BaseModel):
             raise ValueError("first_name is required and cannot be empty")
         if len(value) > 50:
             raise ValueError(
-                "first_name is too long, more than 50 characters"
-            )
+                "first_name is too long, more than 50 characters")
         self._first_name = value.strip()
 
-    @property
+# -------------------------------------------------------- Gestion du last_name
+    @hybrid_property
     def last_name(self):
         """
         Get the user's last name.
@@ -116,11 +142,11 @@ class User(BaseModel):
             raise ValueError("last_name is required and cannot be empty")
         if len(value) > 50:
             raise ValueError(
-                "last_name is too long, more than 50 characters"
-            )
+                "last_name is too long, more than 50 characters")
         self._last_name = value.strip()
 
-    @property
+# ---------------------------------------------------------- Gestion de l'email
+    @hybrid_property
     def email(self):
         """
         Get the user's email address.
@@ -142,32 +168,27 @@ class User(BaseModel):
             ValueError: If email is invalid or already used.
 
         """
+        # Vérifie si la valeur de l'email est vide
         if not value or not value.strip():
             raise ValueError("email is required and cannot be empty")
+
+        # Variable pour cleaner la valeur de l'email
         cleaned_email = value.strip()
+
+        # Vérifie si après le clean de l'email le format est valide
         if not self.email_valid(cleaned_email):
             raise ValueError("Email format is invalid")
-        if (cleaned_email in User.users_email and
-                User.users_email[cleaned_email] is not self):
+
+        from app.models.user import User as UserModel  # évite circular import
+
+        # Récupère le user par sont email (utile pour search, modif et delete)
+        existing_user = UserModel.query.filter_by(email=cleaned_email).first()
+
+        # Vérifie si l'email est déjà utilisé
+        if existing_user and existing_user.id != self.id:
             raise ValueError("This email is already used")
 
-
-        old_email = getattr(self, "_email", None)
-        if old_email and old_email in User.users_email:
-            del User.users_email[old_email]
-
-        self._email = value.strip()
-        User.users_email[cleaned_email] = self
-
-    @property
-    def is_admin(self):
-        return self._is_admin
-
-    @is_admin.setter
-    def is_admin(self, value):
-        if type(value) is not bool:
-            raise ValueError("Is_admin must be a boolean")
-        self._is_admin = value
+        self._email = cleaned_email
 
     @staticmethod
     def email_valid(email):
@@ -178,16 +199,33 @@ class User(BaseModel):
             email (str): The email string to validate.
 
         Returns:
-            bool: True if valid, False otherwise.
+            bool: True if the email matches the expected pattern,
+            False otherwise.
         """
-        if email.count('@') != 1:
-            return False
-        name, domain = email.split('@')
-        if '.' not in domain:
-            return False
-        return True
+        # Regex de validation d'email
+        pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+        # Vérifie la syntaxe du mail par rapport à la regex
+        match = re.match(pattern, email)
 
-    @property
+        # Vérifie si il y a match ou pas
+        if match is not None:
+            return True         # Match OK
+        else:
+            return False        # Match NOK
+
+# --------------------------------------------------------- Gestion du is_admin
+    @hybrid_property
+    def is_admin(self):
+        return self._is_admin
+
+    @is_admin.setter
+    def is_admin(self, value):
+        if type(value) is not bool:
+            raise ValueError("Is_admin must be a boolean")
+        self._is_admin = value
+
+# --------------------------------------------------------- Gestion du password
+    @hybrid_property
     def password(self):
         """The password is write-only and cannot be read."""
         raise AttributeError("The password is not accessible in read")
@@ -196,14 +234,17 @@ class User(BaseModel):
     def password(self, password):
         """Hashes the password before storing it."""
         from app import bcrypt
-        self._password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self._password_hash = (
+            bcrypt
+            .generate_password_hash(password)
+            .decode('utf-8'))
 
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
         from app import bcrypt
         return bcrypt.check_password_hash(self._password_hash, password)
 
-
+# ----------------------------------------- Transforme un objet en dictionnaire
     def to_dict(self):
         """
         Convert the user object to a dictionary representation.
