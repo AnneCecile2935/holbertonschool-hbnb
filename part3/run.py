@@ -12,10 +12,16 @@ Note:
 ------
 Debug mode should only be used during local development.
 """
+import logging
 from app import create_app
+from part3.app.extensions import db
+from app.models import user
 
-
+logging.basicConfig(filename='app.log', level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s')
 app = create_app()
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
