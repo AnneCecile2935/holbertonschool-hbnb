@@ -6,7 +6,7 @@ The class inherits from BaseModel, which provides a unique ID as well as
 timestamps for creation and last update.
 """
 from .base_model import BaseModel
-
+from part3.app.extensions import db, bcrypt, jwt
 
 class Amenity(BaseModel):
     """
