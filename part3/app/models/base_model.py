@@ -1,11 +1,25 @@
-from datetime import datetime
 import uuid
-
-class BaseModel:
+from datetime import datetime
+from part3.app.extensions import db, bcrypt, jwt
+class BaseModel(db.Model):
     """
     BaseModel class  that provides a unique ID, creation and update timestamps,
     and methods to save and update the instance attributes.
     """
+    __abstract__ = True
+
+    id = db.Column(
+        db.String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()))
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.now)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.now,
+        onupdate=datetime.now)
+
     def __init__(self):
         """
         Initialize a new BaseModel instance.
