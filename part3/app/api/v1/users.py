@@ -42,7 +42,7 @@ user_model = api.model('User', {                # "model" permet de déclarer
         required=True,
         description='User is or not admin'
     ),
-    'user_password' : fields.String(
+    'password' : fields.String(
         required=True,
         description='User pass_word of new user will be hashed automatically'
     )
@@ -103,18 +103,13 @@ class UserList(Resource):       # "Resource" = methodes requête (POST, GET, ..)
     def get(self):
         """Get all users"""
         users = facade.get_all_users()    # Récupère les users dans le _storage
-        """users_list = []                   # Crée une liste de vide
-        for user in users:                # Boucle dans le _storage
-            users_list.append({           # Ajoute chaque user à la liste
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email
-            })
+        users_list = []                         # Initialise une liste vide
 
-        return users_list, 200            # Return la liste
-"""
-        return [user.to_dict() for user in users], 200
+        for user in users:                      # Parcourt chaque user
+            user_dict = user.to_dict()          # Transforme en dictionnaire
+            users_list.append(user_dict)        # Ajoute à la liste
+
+        return users_list, 200                # Retourne la liste avec code 200
 
 # ----------------------------------- Route GET & PUT : /api/v1/users/<user_id>
 @api.route('/<user_id>')        # Création d'une route
