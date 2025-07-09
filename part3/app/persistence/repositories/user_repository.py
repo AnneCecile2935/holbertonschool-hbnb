@@ -1,5 +1,4 @@
 from app.models.user import User
-from part3.app.extensions import db, bcrypt, jwt
 from app.persistence.repository import SQLAlchemyRepository
 
 class UserRepository(SQLAlchemyRepository):
