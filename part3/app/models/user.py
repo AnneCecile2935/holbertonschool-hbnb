@@ -7,9 +7,9 @@ last name, email (unique and validated), and admin status.
 Includes property setters with validation and email uniqueness
 tracking across all User instances.
 """
-from part3.app.extensions import db, bcrypt, jwt
+from app.extensions import db
 from sqlalchemy.ext.hybrid import hybrid_property
-# from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship
 from app.models.base_model import BaseModel
 import re                                       # Validation syntaxe de l'email
 
@@ -40,11 +40,15 @@ class User(BaseModel):
         db.Boolean,
         default=False)
 
-    # places = relationship(               Relation entre le user et ses places
-    # "Place",
-    # backref="user",
-    # cascade="all,
-    # delete-orphan")
+    places = relationship(              # Relation entre le user et ses places
+    "Place",
+    backref="user",
+    cascade="all, delete-orphan")
+
+    review = relationship(              # Relation entre le user et ses review
+    "Review",
+    backref="user",
+    cascade="all, delete-orphan")
 # --------------------------------------- Définition des attributs de la classe
     def __init__(
         self, first_name, last_name, email, password, is_admin=False
@@ -67,7 +71,6 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
-        self.place = []  # Va disparaitre remplacé par la liaison avec la BDD
         self.password = password
 
 # ---------------------------------------- Représentation visuelle de la classe
@@ -109,12 +112,14 @@ class User(BaseModel):
         """
         if not isinstance(value, str):
             raise TypeError("first_name must be a string")
+
+        value = value.strip()
         if not value or not value.strip():
             raise ValueError("first_name is required and cannot be empty")
         if len(value) > 50:
             raise ValueError(
                 "first_name is too long, more than 50 characters")
-        self._first_name = value.strip()
+        self._first_name = value
 
 # -------------------------------------------------------- Gestion du last_name
     @hybrid_property
@@ -138,12 +143,16 @@ class User(BaseModel):
         Raises:
             ValueError: If empty or too long (> 50 chars).
         """
+        if not isinstance(value, str):
+            raise TypeError("last_name must be a string")
+
+        value = value.strip()
         if not value or not value.strip():
             raise ValueError("last_name is required and cannot be empty")
         if len(value) > 50:
             raise ValueError(
                 "last_name is too long, more than 50 characters")
-        self._last_name = value.strip()
+        self._last_name = value
 
 # ---------------------------------------------------------- Gestion de l'email
     @hybrid_property
@@ -168,6 +177,9 @@ class User(BaseModel):
             ValueError: If email is invalid or already used.
 
         """
+        if not isinstance(value, str):
+            raise TypeError("email must be a string")
+
         # Vérifie si la valeur de l'email est vide
         if not value or not value.strip():
             raise ValueError("email is required and cannot be empty")
