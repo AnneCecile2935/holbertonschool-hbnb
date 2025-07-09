@@ -6,7 +6,8 @@ The class inherits from BaseModel, which provides a unique ID as well as
 timestamps for creation and last update.
 """
 from .base_model import BaseModel
-from part3.app.extensions import db, bcrypt, jwt
+from sqlalchemy.ext.hybrid import hybrid_property
+from app.extensions import db
 
 class Amenity(BaseModel):
     """
@@ -15,8 +16,15 @@ class Amenity(BaseModel):
     Attributes:
         name (str): Name of the amenity (required, max 50 characters).
     """
-    amenities_name = {}
+    __tablename__ = 'amenities'              # Création de la table 'amenities'
+# --------------------------------- Création des colonnes de la table amenities
+# Relier les attributs privés aux colonnes de la BDD avec paramètres
+    _name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True)
 
+# --------------------------------------- Définition des attributs de la classe
     def __init__(self, name):
         """
         Initializes a new Amenity instance.
@@ -31,9 +39,14 @@ class Amenity(BaseModel):
         """
         Returns a human-readable string representation of the amenity.
         """
-        return f"Amenity = (\n id={self.id},\n name={self.name})"
+        return (
+            f"\nAmenity = (\n"
+            f" id = {self.id},\n"
+            f" name = {self.name},\n"
+            f" created_at = {self.created_at},\n"
+            f" updated_at = {self.updated_at}\n)")
 
-    @property
+    @hybrid_property
     def name(self):
         """
         Returns the name of the amenity.
@@ -51,16 +64,16 @@ class Amenity(BaseModel):
         """
         if not isinstance(value, str):
             raise TypeError("Name must be a string")
+
         value = value.strip()
         if not value:
             raise ValueError("Name cannot be empty")
         if len(value) > 50:
             raise ValueError("Name is too long, more than 50 characters")
-        if value in Amenity.amenities_name and Amenity.amenities_name[value] is not self:
+
+        existing = Amenity.query.filter_by(_name=value).first()
+        if existing and existing.id != self.id:
             raise ValueError("This amenity is already registered.")
-        old_name = getattr(self, "_name", None)
-        if old_name and old_name in Amenity.amenities_name:
-            del Amenity.amenities_name[old_name]
 
         self._name = value
-        Amenity.amenities_name[value] = self
+
