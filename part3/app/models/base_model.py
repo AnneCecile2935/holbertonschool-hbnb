@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from part3.app.extensions import db, bcrypt, jwt
+from app.extensions import db
 class BaseModel(db.Model):
     """
     BaseModel class  that provides a unique ID, creation and update timestamps,
