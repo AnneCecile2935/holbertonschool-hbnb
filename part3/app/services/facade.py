@@ -1,5 +1,6 @@
 from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.repositories.user_repository import UserRepository
+from werkzeug.exceptions import BadRequest
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -46,10 +47,13 @@ class HBnBFacade:
             if existing_user and existing_user.id != user_id:
                 raise ValueError(f"Email '{email}' is already registered.")
 
-        # Boucle pour modifier les attributs dynamiquement
-        for attribut in ['first_name', 'last_name', 'email']:
-            if attribut in update_data:
-                setattr(user, attribut, update_data[attribut])
+        # Boucle pour vérifier les Key et modifier les attributs dynamiquement
+        allowed_fields = {"first_name", "last_name", "email"}
+        for key in update_data:
+            if key not in allowed_fields:
+                raise ValueError(f"Unexpected field: {key}")
+
+        self.user_repository.update(user_id, update_data)
         return user
 # ----------------------------------------------------- methodes facade amenity
 
@@ -81,7 +85,7 @@ class HBnBFacade:
             # Mise à jour de l'amenity dans le repo
             self.amenity_repository.update(amenity_id, update_data)
         except (ValueError, TypeError) as e:
-            raise ValueError(f"Invalid amenity data: {str(e)}")
+            raise BadRequest(str(e))
 
         return amenity
 
@@ -141,10 +145,13 @@ class HBnBFacade:
         if not place:                       # Si la place n'existe pas = Erreur
             raise ValueError("Place not found")
 
-        # Boucle pour modifier les attributs dynamiquement
-        for attribut in ['title', 'description', 'price', 'latitude', 'longitude']:
-            if attribut in place_data:
-                setattr(place, attribut, place_data[attribut])
+        # Boucle pour vérifier les Keys
+        allowed_fields = {'title', 'description', 'price'}
+        for key in place_data:
+            if key not in allowed_fields:
+                raise ValueError(f"Unexpected field: {key}")
+        # Si ok modifie la BDD
+        self.place_repository.update(place_id, place_data)
         return place
 # ------------------------------------------------------ methodes facade review
 
@@ -248,9 +255,13 @@ class HBnBFacade:
                 raise ValueError("Place not found")
             review.place = place
 
-        for field in ['text', 'rating']:
-            if field in update_data:
-                setattr(review, field, update_data[field])
+        # Boucle pour vérifier les Key et modifier les attributs dynamiquement
+        allowed_fields = {'text', 'rating'}
+        for key in update_data:
+            if key not in allowed_fields:
+                raise ValueError(f"Unexpected field: {key}")
+
+        self.review_repository.update(review_id, update_data)
         return review
 
     def delete_review(self, review_id):
