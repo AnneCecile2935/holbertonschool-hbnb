@@ -5,7 +5,7 @@ from config import DevelopmentConfig #import propre
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
-from part3.app.extensions import db, bcrypt, jwt
+from app.extensions import db, bcrypt, jwt
 from flask_jwt_extended import JWTManager                   #extension génération de token
 #-------------------------------------------------------------- Import namespace
 

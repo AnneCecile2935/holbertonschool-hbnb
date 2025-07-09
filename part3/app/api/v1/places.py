@@ -138,6 +138,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             return {'error': str(e)}, 400     # Return obj error et code status
 
 # ------------------------------------------ Route POST & GET : /api/v1/places/
+    @api.response(200, 'Places found', place_detail_model)
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """
@@ -148,17 +149,56 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         """
         places = facade.get_all_places()       # Récupération de la liste
         places_list = []                       # Liste vide
-        for place in places:                   # Boucle dans le _storage
-            places_list.append({               # Ajoute chaque place à la liste
-                'id': place.id,
-                'title': place.title,
-                'description': place.description,
-                'price': place.price,
-                'latitude': place.latitude,
-                'longitude': place.longitude,
-                'owner': place.owner,
-            })
-        return places_list, 200                # Return la liste
+
+        for place in places:
+            # Récupérer le owner
+            owner = facade.get_user(place.owner)
+
+            # Construction du dictionnaire owner
+            owner_data = {}
+            if owner:
+                owner_data["id"] = owner.id
+                owner_data["first_name"] = owner.first_name
+                owner_data["last_name"] = owner.last_name
+                owner_data["email"] = owner.email
+            else:
+                owner_data = None
+
+            # Construction de la liste des amenities
+            amenities = []
+            for amenity in place.amenities:
+                amenity_data = {}
+                amenity_data["id"] = amenity.id
+                amenity_data["name"] = amenity.name
+                amenities.append(amenity_data)
+
+            # Construction de la liste des reviews
+            reviews = []
+            for review in place.reviews:
+                review_data = {}
+                review_data["id"] = review.id
+                review_data["rating"] = review.rating
+                review_data["text"] = review.text
+                reviews.append(review_data)
+
+            # Construction de la place complète
+            place_data = {
+                "id": place.id,
+                "title": place.title,
+                "description": place.description,
+                "price": place.price,
+                "latitude": place.latitude,
+                "longitude": place.longitude,
+                "owner": owner_data,
+                "amenities": amenities,
+                "reviews": reviews
+            }
+
+            # Ajout à la liste finale
+            places_list.append(place_data)
+
+        return places_list, 200
+
 
 
 # --------------------------------- Route GET & PUT : /api/v1/places/<place_id>
@@ -188,10 +228,20 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
         owner = facade.get_user(place.owner)      # Récupère le owner
         if not owner:                             # Si il n'existe pas = Erreur
             return {'error': 'Owner not found'}, 404
-        # Récupération des amenities d'une place par la facade
-        amenities = facade.get_amenities_by_place(place.id)
-        # Récupération des reviews d'une place par la facade
-        reviews = facade.get_reviews_by_place(place.id)
+        amenities = []
+        for amenity in place.amenities:
+            amenity_data = {}
+            amenity_data["id"] = amenity.id
+            amenity_data["name"] = amenity.name
+            amenities.append(amenity_data)
+        reviews = []
+        for review in place.reviews:
+            review_data = {}
+            review_data["id"] = review.id
+            review_data["rating"] = review.rating
+            review_data["comment"] = review.text
+            reviews.append(review_data)
+
         return {
             'id': place.id,
             'title': place.title,

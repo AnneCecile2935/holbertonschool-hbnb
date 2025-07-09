@@ -9,8 +9,11 @@ The class inherits from BaseModel, which provides a unique identifier
 and timestamps for creation and updates.
 """
 from .base_model import BaseModel
-from part3.app.extensions import db, bcrypt, jwt
-
+from app.extensions import db
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint
+from .liaison_table import place_amenity        # Import de la table de liaison
 class Place(BaseModel):
     """
     Class representing a place in the HBnB application.
@@ -25,8 +28,53 @@ class Place(BaseModel):
         reviews (list)    : List of Review objects related to the place.
         amenities (list)  : List of Amenity objects available at the place.
     """
-    place_list = {}
+    __tablename__= 'places'                     # Création de la table 'places'
+# ------------------------------------ Création des colonnes de la table places
+# Relier les attributs privés aux colonnes de la BDD avec paramètres
+    _title = db.Column(
+        db.String(100),
+        nullable=False)
+    _description = db.Column(
+        db.String(),
+        nullable=True)
+    _price = db.Column(
+        db.Float(),
+        nullable=False)
+    _latitude = db.Column(
+        db.Float(),
+        nullable=False)
+    _longitude = db.Column(
+        db.Float(),
+        nullable=False)
 
+    owner_id = db.Column(
+        db.String(),
+        db.ForeignKey("users.id"),
+        nullable=False)
+
+    reviews = relationship(
+        "Review",
+        backref="place",
+        cascade="all, delete-orphan")
+    amenities = db.relationship(
+        "Amenity",
+        secondary=place_amenity,
+        backref="places",
+        cascade="all, delete")
+
+    # Vérification des données SQL
+    __table_args__ = (
+        CheckConstraint(
+            '_price > 0',
+            name='check_positive_price'),
+        CheckConstraint(
+            '_latitude >= -90 AND _latitude <= 90',
+            name='check_latitude_range'),
+        CheckConstraint(
+            '_longitude >= -180 AND _longitude <= 180',
+            name='check_longitude_range'),
+    )
+# --------------------------------------- Définition des attributs de la classe
     def __init__(self, title, price, latitude,
                  longitude, owner, description=None):
         """
@@ -47,9 +95,7 @@ class Place(BaseModel):
         self.latitude = latitude
         self.longitude = longitude
         self.owner = owner
-        self.reviews = []
-        self.amenities = []
-
+# ---------------------------------------- Représentation visuelle de la classe
     def __repr__(self):
         return (
             f"\nPlace = (\n"
@@ -59,14 +105,15 @@ class Place(BaseModel):
             f" price = {self.price},\n"
             f" latitude = {self.latitude},\n"
             f" longitude = {self.longitude},\n"
-            f" owner = {self.owner},\n"
+            f" owner = {self.owner_id},\n"
             f" reviews = {self.reviews},\n"
             f" amenities = {self.amenities}\n,"
             f" created_at = {self.created_at}\n,"
-            f" update_at = {self.update_at}\n)"
+            f" updated_at = {self.updated_at}\n)"
         )
 
-    @property
+# ------------------------------------------------------------ Gestion du title
+    @hybrid_property
     def title(self):
         return self._title
 
@@ -80,7 +127,8 @@ class Place(BaseModel):
         else:
             self._title = value.strip()
 
-    @property
+# --------------------------------------------------- Gestion de la description
+    @hybrid_property
     def description(self):
         return self._description
 
@@ -89,10 +137,12 @@ class Place(BaseModel):
         # Vérifie le type de donnée et si la donnée est vide
         if not (isinstance(value, str) or value is None):
             raise TypeError("Description must be a string.")
-        else:
+        if value is not None:
             self._description = value.strip()
-
-    @property
+        else:
+            self._description = None
+# ------------------------------------------------------------ Gestion du price
+    @hybrid_property
     def price(self):
         return self._price
 
@@ -104,8 +154,8 @@ class Place(BaseModel):
             raise ValueError("Price must be a positive float.")
         else:
             self._price = float(value)
-
-    @property
+# ------------------------------------------------------ Gestion de la latitude
+    @hybrid_property
     def latitude(self):
         return self._latitude
 
@@ -113,11 +163,11 @@ class Place(BaseModel):
     def latitude(self, value):
         if not isinstance(value, (int, float)):
             raise TypeError("Latitude must be a float.")
-        if value < -90.0 or value > 90.0:
+        if not -90.0 <= value <= 90.0:
             raise ValueError("Latitude must be between -90.0 and 90.0.")
         self._latitude = float(value)
-
-    @property
+# ----------------------------------------------------- Gestion de la longitude
+    @hybrid_property
     def longitude(self):
         return self._longitude
 
@@ -125,13 +175,13 @@ class Place(BaseModel):
     def longitude(self, value):
         if not isinstance(value, (int, float)):
             raise TypeError("Longitude must be a float.")
-        if value < -180.0 or value > 180.0:
+        if not -180.0 <= value <= 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0.")
         self._longitude = float(value)
-
-    @property
+# ------------------------------------------------------------ Gestion du owner
+    @hybrid_property
     def owner(self):
-        return self._owner
+        return self.owner_id
 
     @owner.setter
     def owner(self, value):
@@ -140,22 +190,4 @@ class Place(BaseModel):
             raise TypeError(
                 "Owner must be a User object with a valid ID."
             )
-        self._owner = value.id
-
-    def add_review(self, review):
-        """
-        Adds a review to the list of reviews for this place.
-
-        Args:
-            review (Review): A Review object to associate with the place.
-        """
-        self.reviews.append(review)
-
-    def add_amenity(self, amenity):
-        """
-        Adds an amenity to the list of amenities for this place.
-
-        Args:
-            amenity (Amenity): An Amenity object to associate with the place.
-        """
-        self.amenities.append(amenity)
+        self.owner_id = value.id

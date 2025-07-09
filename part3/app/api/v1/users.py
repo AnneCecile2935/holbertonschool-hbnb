@@ -74,6 +74,10 @@ user_update_model = api.model('UserUpdate', {
         required=False,
         description='Last name of the user'
     ),
+    'email': fields.String(                      # "fields.String" = string
+        required=False,                           # Champ non obligatoire
+        description='Email of the user'          # Description
+    )
 })
 
 # ------------------------------------------- Route POST & GET : /api/v1/users/
