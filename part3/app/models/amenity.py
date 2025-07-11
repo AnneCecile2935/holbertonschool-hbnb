@@ -1,44 +1,27 @@
-"""
-This module defines the Amenity class, representing an equipment or service
-that can be associated with a place (e.g., Wi-Fi, parking, etc.).
-
-The class inherits from BaseModel, which provides a unique ID as well as
-timestamps for creation and last update.
-"""
-from .base_model import BaseModel
+"""Defines the Amenity model (name only)."""
 from sqlalchemy.ext.hybrid import hybrid_property
 from app.extensions import db
+from .base_model import BaseModel
+
 
 class Amenity(BaseModel):
-    """
-    Class representing a facility or service available in a place.
-
-    Attributes:
-        name (str): Name of the amenity (required, max 50 characters).
-    """
+    """Amenity model with unique name field."""
     __tablename__ = 'amenities'              # Création de la table 'amenities'
 # --------------------------------- Création des colonnes de la table amenities
-# Relier les attributs privés aux colonnes de la BDD avec paramètres
-    _name = db.Column(
-        db.String(50),
-        nullable=False,
-        unique=True)
+    _name = db.Column(               # Création de la colonne 'name' dans la db
+        db.String(50),               # Value = String -> 50 char max
+        nullable=False,              # Ne peux pas être NULL
+        unique=True)                 # Doit être unique
 
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, name):
-        """
-        Initializes a new Amenity instance.
-
-        Args:
-            name (str): Name of the amenity.
-        """
+        """Initialize Amenity with a name."""
         super().__init__()
         self.name = name
 
+# ---------------------------------------- Représentation visuelle de la classe
     def __repr__(self):
-        """
-        Returns a human-readable string representation of the amenity.
-        """
+        """String representation of the amenity."""
         return (
             f"\nAmenity = (\n"
             f" id = {self.id},\n"
@@ -46,34 +29,35 @@ class Amenity(BaseModel):
             f" created_at = {self.created_at},\n"
             f" updated_at = {self.updated_at}\n)")
 
+# ------------------------------------------------------------- Gestion du name
     @hybrid_property
     def name(self):
-        """
-        Returns the name of the amenity.
-        """
+        """Get the amenity name."""
         return self._name
 
     @name.setter
     def name(self, value):
-        """
-        Sets the name of the amenity after validating type and length.
-
-        Raises:
-            TypeError: If value is not a non-empty string.
-            ValueError: If value exceeds 50 characters.
-        """
+        """Validate and set the amenity name."""
+        # Vérifie si la value est une string
         if not isinstance(value, str):
             raise TypeError("Name must be a string")
 
+        # 'Nettoie' la valeur -> évite les espaces autour de value
         value = value.strip()
+
+        # Vérifie si la valeur est vide
         if not value:
             raise ValueError("Name cannot be empty")
+        # Vérifie que la value fait 50 char max
         if len(value) > 50:
             raise ValueError("Name is too long, more than 50 characters")
 
+        # Recherche du nom de l'amenity dans la BDD
         existing = Amenity.query.filter_by(_name=value).first()
+
+        # Vérifie que l'amenity n'existe pas déjà dans la BDD
         if existing and existing.id != self.id:
             raise ValueError("This amenity is already registered.")
 
+        # Si tout est OK passe value à l'attribut 'name'
         self._name = value
-
