@@ -146,31 +146,78 @@ The second phase involves **implementing business entities** and
 
 ---
 
+### 🔐 Part 3 – Authentication & Database Integration
+
+#### ✅ Objectives of this Phase
+
+- Replace in-memory storage with a relational database
+- Implement JWT-based authentication (Flask-JWT-Extended)
+- Secure passwords using hashing (Flask-Bcrypt)
+- Enforce role-based access control (admin vs. regular users)
+- Enable full CRUD operations on core models (User, Place, Review, Amenity)
+- Support modular configuration (environment-specific)
+- Maintain clean separation of concerns across layers
+- Visualize entity relationships via Mermaid.js ER diagrams
+- Prepare for production with SQLite/MySQL dual support
+
+#### 🧱 Technical Architecture
+
+- SQLAlchemy ORM for database modeling and interaction
+- JWT for secure access and route protection
+- Centralized config via config.py and instance/
+- Dedicated persistence layer for all DB operation
+- Core services remain decoupled from storage logic
+- Admins granted elevated privileges (via is_admin flag)
+
+#### 🔍 Key Features
+
+Secure user authentication (login returns JWT token)
+
+- Passwords never stored in plaintext (bcrypt-hashed)
+- Database schema supports:
+- One-to-many: Users → Places, Reviews
+- Many-to-many: Places ↔ Amenities (via association table)
+- Modular blueprints and scalable services
+- Easy switching between SQLite (dev) and MySQL (prod)
+- ER diagrams rendered with Mermaid.js for documentation and clarity
+
+🛠 Technologies introduced: Python 3, Flask, SQLAlchemy, Flask-JWT-Extended, Flask-Bcrypt, SQLite/MySQL, Mermaid.js
+
+👉 See: part3/
+
 ## 🧠 What We Learned
 
 ### Part 1: Design Phase
+
 - How to model a clear and modular architecture using UML diagrams.
 - How to define and describe core business entities and their relationships.
 - The importance of planning with use cases and sequence diagrams to visualize system interactions.
 - Setting a solid foundation that guides future development phases.
 
 ### Part 2: Implementation of Business Logic and API Endpoints
+
 - How to translate designs into modular, maintainable Python code using OOP principles.
 - Building the Business Logic layer with core models like User, Place, Review, and Amenity.
 - Creating RESTful API endpoints using Flask and flask-restx for clear and scalable communication.
 - Implementing data serialization and handling relationships between entities.
 - Testing and validating API functionality to ensure reliability and correctness.
 
+### Part 3 :  Authentication & Database Integration
+
+- Authentication and Authorization: Implement JWT-based user authentication using Flask-JWT-Extended and role-based access control with the is_admin attribute for specific endpoints.
+- Database Integration: Replace in-memory storage with SQLite for development using SQLAlchemy as the ORM and prepare for MySQL or other production grade RDBMS.
+- CRUD Operations with Database Persistence: Refactor all CRUD operations to interact with a persistent database.
+- Database Design and Visualization: Design the database schema using mermaid.js and ensure all relationships between entities are correctly mapped.
+- Data Consistency and Validation: Ensure that data validation and constraints are properly enforced in the models.
+
 Together, these parts helped us develop practical skills in software design and API development, creating a robust base for the HBnB project’s upcoming stages.
 
 ## 🚧 Upcoming Work
 
-Future phases (Parts 3 & 4) will include:
+Future phases (Parts 4) will include:
 
-- 📦 **Integration of an SQL database** (SQLAlchemy or custom ORM)
 - 🧪 **Extended automated testing**
 - 🖼 **Front-end development** (HTML/JS or modern framework)
-- 🔐 **Authentication and session management**
 - 🧩 **Progressive deployment on servers or containers**
 
 ---
