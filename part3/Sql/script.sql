@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS User(
 	first_name VARCHAR(255),
 	last_name VARCHAR(255),
 	email VARCHAR(255) UNIQUE NOT NULL, -- vérfiie l'unicité de l'email
-	password VARCHAR(255) NOT null, -- est obligatoire
+	password VARCHAR(255) NOT NULL, -- est obligatoire
 	is_admin BOOLEAN DEFAULT FALSE
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS Review
 CREATE TABLE IF NOT EXISTS Amenity
 (
 	id CHAR(36) PRIMARY KEY,
-	name VARCHAR(255) UNIQUE NOT NULL -- equiepement doit être unique
+	name VARCHAR(255) UNIQUE NOT NULL -- equipement doit être unique
 );
 
 CREATE TABLE IF NOT EXISTS Place_Amenity
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS Place_Amenity
 	place_id CHAR(36),
 	amenity_id CHAR(36),
 	PRIMARY KEY (place_id, amenity_id), -- empeche les doublons par place
-	FOREIGN KEY(place_id) REFERENCES Place(id) ON DELETE CASCADE,
-	FOREIGN KEY(amenity_id) REFERENCES Amenity(id) ON DELETE CASCADE --
+	FOREIGN KEY(place_id) REFERENCES Place(id),
+	FOREIGN KEY(amenity_id) REFERENCES Amenity(id)
 );
 
 INSERT INTO User (id, first_name, last_name, email, password, is_admin)
