@@ -102,7 +102,7 @@ export FLASK_APP=run.py
 
 ```bash
 
-flask run.py
+python3 run.py
 ```
 
 ## 🛠 Configuration
@@ -148,7 +148,7 @@ flask-restx
 - SQLAlchemy
 - Flask-JWT-Extended
 - Flask-Bcrypt
-- SQLite / MySQL
+- SQLite
 - Mermaid.js (for ER diagrams)
 
 ## 🧪 Testing SQL Scripts
@@ -159,7 +159,7 @@ To verify and test your SQL scripts (e.g., schema creation, table relationships)
 
 ```bash
 # Launch SQLite with a test database
-sqlite3 test.db
+sqlite3 hbnb.db
 
 # Inside SQLite shell, run your script:
 .read Sql/schema.sql
@@ -171,32 +171,7 @@ sqlite3 test.db
 .quit
 
 # Optional: Delete test DB after test
-rm test.db
-```
-
-### ▶️ Using MySQL (Prod-like)
-
-```bash
-# Log into MySQL (replace with your actual credentials)
-
-mysql -u root -p
-
-# Inside MySQL shell, create and use test database:
-
-CREATE DATABASE hbnb_test;
-USE hbnb_test;
-
-# Source your script
-
-SOURCE Sql/schema.sql;
-
-# Check tables
-
-SHOW TABLES;
-
-# Exit
-
-EXIT;
+rm hbnb.db
 ```
 
 ```mermaid
@@ -239,12 +214,34 @@ erDiagram
         CHAR(36) amenity_id FK
     }
 
+    RESERVATION {
+        CHAR(36) id PK
+        DATE start_date
+        DATE end_date
+        VARCHAR status
+        CHAR(36) user_id FK
+        CHAR(36) place_id FK
+    }
+
     USER ||--o{ PLACE : "owns"
     USER ||--o{ REVIEW : "writes"
     PLACE ||--o{ REVIEW : "receives"
     PLACE ||--o{ PLACE_AMENITY : "has"
     AMENITY ||--o{ PLACE_AMENITY : "included in"
+
+    USER ||--o{ RESERVATION : "makes"
+    PLACE ||--o{ RESERVATION : "booked in"
 ```
+
+✅ Updates made:
+
+A new table called RESERVATION can will be added.
+
+It is linked to the USER table (a user can make multiple reservations).
+
+It is also linked to the PLACE table (a place can be reserved multiple times).
+
+This models the booking system, where users can reserve different places for their stay.
 
 ## ✅ Admin Access
 
