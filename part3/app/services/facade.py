@@ -49,6 +49,9 @@ class HBnBFacade:
 
         # Boucle pour vérifier les Key et modifier les attributs dynamiquement
         allowed_fields = {"first_name", "last_name", "email"}
+        if 'password' in update_data:
+            allowed_fields.add('password')
+
         for key in update_data:
             if key not in allowed_fields:
                 raise ValueError(f"Unexpected field: {key}")
@@ -247,7 +250,7 @@ class HBnBFacade:
             user = self.get_user(update_data['user_id'])
             if not user:
                 raise ValueError("User not found")
-            review.user = user
+            review.user_id = user.id
 
         if 'place_id' in update_data:
             place = self.get_place(update_data['place_id'])

@@ -1,24 +1,26 @@
 """
 Places API module.
 
-This module defines the RESTful API endpoints to manage places.
-It uses Flask-RESTX to provide routes for creating, retrieving,
-updating, and listing places.
+This module defines RESTful API endpoints to manage places using Flask-RESTX.
+It supports creating, retrieving, updating, and listing places.
 
 Endpoints:
-- /api/v1/places/ [GET, POST]: List all places or create a new one.
-- /api/v1/places/<place_id> [GET, PUT]: Retrieve or update a specific place.
+- GET, POST /api/v1/places/: List all places or create a new place.
+- GET, PUT /api/v1/places/<place_id>: Retrieve or update a specific place.
 
 Models:
-- place_model: Defines the data schema for place creation with validation.
-- place_update_model: Defines the data schema for place update with validation.
+- place_model: Schema for place creation with validation.
+- place_update_model: Schema for place update with validation.
 
 Error handling returns appropriate HTTP status codes and messages.
 """
+
+
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 from app.api.v1.users import user_place_model
+from app.utils.decorators import handle_errors
 
 api = Namespace(  # Namespace permet de regrouper les routes pr une même entité
     'places',                           # Le nom du Namespace
@@ -99,43 +101,40 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
     @api.response(201, 'Place successfully created')                    # OK
     @api.response(400, 'Bad request')                                   # NOK
 # --------------------------------- Fonction pour enregister une nouvelle place
+    @handle_errors
     @jwt_required()
     def post(self):
         """
         Register a new place.
 
         Expects JSON payload matching place_model.
-        Validates owner existence before creation.
+        Validates owner existence and ownership.
 
         Returns:
             JSON with new place details and HTTP 201 on success,
-            or error message and appropriate HTTP code on failure.
+            or error message with HTTP 400/403 on failure.
         """
         current_user = get_jwt_identity()
-        place_data = api.payload                 # Récupère les données
+        place_data = api.payload
         if "owner" not in place_data:
             return {'error': "Missing 'owner' field"}, 400
-        owner_id = place_data.get("owner")       # Récupère l'id du champ owner
-        owner = facade.get_user(owner_id)    # Récup le user_id par le owner_id
-        if not owner:                   # Si le owner n'est pas trouvé = Erreur
+        owner_id = place_data.get("owner")
+        owner = facade.get_user(owner_id)
+        if not owner:
             return {'error': 'Owner user not found'}, 400
         elif owner_id != current_user['id']:
             return {'error': 'Unauthorized action'}, 403
 
-        try:
-            # Vérifie les données et si OK crée une nouvelle place
-            new_place = facade.create_place(place_data)
-            return {
-                'id': new_place.id,
-                'title': new_place.title,
-                'description': new_place.description,
-                'price': new_place.price,
-                'latitude': new_place.latitude,
-                'longitude': new_place.longitude,
-                'owner': new_place.owner
+        new_place = facade.create_place(place_data)
+        return {
+            'id': new_place.id,
+            'title': new_place.title,
+            'description': new_place.description,
+            'price': new_place.price,
+            'latitude': new_place.latitude,
+            'longitude': new_place.longitude,
+            'owner': new_place.owner
             }, 201
-        except (ValueError, TypeError) as e:    # Utilise les methode de classe
-            return {'error': str(e)}, 400     # Return obj error et code status
 
 # ------------------------------------------ Route POST & GET : /api/v1/places/
     @api.response(200, 'Places found', place_detail_model)
@@ -155,14 +154,12 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             owner = facade.get_user(place.owner)
 
             # Construction du dictionnaire owner
-            owner_data = {}
-            if owner:
-                owner_data["id"] = owner.id
-                owner_data["first_name"] = owner.first_name
-                owner_data["last_name"] = owner.last_name
-                owner_data["email"] = owner.email
-            else:
-                owner_data = None
+            owner_data = {
+                "id": owner.id,
+                "first_name": owner.first_name,
+                "last_name": owner.last_name,
+                "email": owner.email
+            } if owner else None
 
             # Construction de la liste des amenities
             amenities = []
@@ -182,7 +179,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
                 reviews.append(review_data)
 
             # Construction de la place complète
-            place_data = {
+            places_list.append({
                 "id": place.id,
                 "title": place.title,
                 "description": place.description,
@@ -192,13 +189,8 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
                 "owner": owner_data,
                 "amenities": amenities,
                 "reviews": reviews
-            }
-
-            # Ajout à la liste finale
-            places_list.append(place_data)
-
+            })
         return places_list, 200
-
 
 
 # --------------------------------- Route GET & PUT : /api/v1/places/<place_id>
@@ -264,6 +256,7 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
     @api.response(200, 'Place updated succesfully')
     @api.response(404, 'Place not found')
 # --------------------------------- Fonction pour modifier une place par son id
+    @handle_errors
     @jwt_required()
     def put(self, place_id):
         """
@@ -279,30 +272,25 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
 
         Returns:
             JSON with updated place details and HTTP 200 on success,
-            or error message with HTTP 400 or 404 on failure.
+            or error message with HTTP 400/403/404 on failure.
         """
-        try:
-            current_user = get_jwt_identity()
-            place = facade.get_place(place_id)  # Récupère la place par sont id
-            if str(place.owner) != current_user['id']:
-                return {'error': 'Unauthorized action'}, 403
-            elif not place:              # Si la place n'est pas trouvée = Erreur
-                return {'error': 'Place not found'}, 404
-            update_data = api.payload          # Récupère les nouvelles données
-            # Vérification que un champ owner est été remplis
-            if 'owner' in update_data:
-                return {
-                    'error': "Modification of 'owner' field is not allowed."
-                }, 400
-            # Vérifie les nouvelles données et si OK modifie la place
-            updated_place = facade.update_place(place_id, update_data)
+        current_user = get_jwt_identity()
+        place = facade.get_place(place_id)  # Récupère la place par sont id
+        if str(place.owner) != current_user['id']:
+            return {'error': 'Unauthorized action'}, 403
+        elif not place:              # Si la place n'est pas trouvée = Erreur
+            return {'error': 'Place not found'}, 404
+        update_data = api.payload          # Récupère les nouvelles données
+        # Vérification que un champ owner est été remplis
+        if 'owner' in update_data:
             return {
-                'id': updated_place.id,
-                'description': updated_place.description,
-                'title': updated_place.title,
-                'price': updated_place.price,
+                'error': "Modification of 'owner' field is not allowed."
+            }, 400
+            # Vérifie les nouvelles données et si OK modifie la place
+        updated_place = facade.update_place(place_id, update_data)
+        return {
+            'id': updated_place.id,
+            'description': updated_place.description,
+            'title': updated_place.title,
+            'price': updated_place.price,
             }, 200
-        except ValueError as ve:
-            return {'error': str(ve)}, 400
-        except Exception as e:
-            return {'error': f'Unexpected error: {str(e)}'}, 400

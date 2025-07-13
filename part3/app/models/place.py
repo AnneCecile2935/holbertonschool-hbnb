@@ -54,7 +54,7 @@ class Place(BaseModel):
 
     reviews = relationship(
         "Review",
-        backref="place",
+        back_populates="place",
         cascade="all, delete-orphan")
     amenities = db.relationship(
         "Amenity",
