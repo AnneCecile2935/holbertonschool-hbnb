@@ -8,10 +8,10 @@ class Amenity(BaseModel):
     """Amenity model with unique name field."""
     __tablename__ = 'amenities'              # Création de la table 'amenities'
 # --------------------------------- Création des colonnes de la table amenities
-    _name = db.Column(               # Création de la colonne 'name' dans la db
-        db.String(50),               # Value = String -> 50 char max
-        nullable=False,              # Ne peux pas être NULL
-        unique=True)                 # Doit être unique
+    _name = db.Column(                          # Création de la colonne 'name'
+        db.String(50),                          # Value = String -> 50 char max
+        nullable=False,                         # Ne peux pas être NULL
+        unique=True)                            # Doit être unique
 
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, name):
