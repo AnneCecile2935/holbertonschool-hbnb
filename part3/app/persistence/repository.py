@@ -196,6 +196,7 @@ class InMemoryRepository(Repository):
         """Clear all data from the in-memory storage."""
         self._storage.clear()
 
+
 class SQLAlchemyRepository(Repository):
     """
     SQLAlchemy-backed implementation of the Repository interface.
@@ -258,8 +259,9 @@ class SQLAlchemyRepository(Repository):
         obj = self.get(obj_id)
         if not obj:
             raise ValueError(f"Object with ID '{obj_id} not found")
+
         for key, value in data.items():
-                setattr(obj, key, value)
+            setattr(obj, key, value)
         db.session.commit()
 
     def delete(self, obj_id):
@@ -286,5 +288,6 @@ class SQLAlchemyRepository(Repository):
         Returns:
         - The matching object, or None if no match is found.
         """
-        return self.model.query.filter(getattr(self.model, attr_name) == attr_value).first()
-
+        return self.model.query.filter(
+            getattr(self.model, attr_name) == attr_value
+            ).first()
