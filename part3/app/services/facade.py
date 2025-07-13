@@ -187,7 +187,7 @@ class HBnBFacade:
 
         try:
             # Passe les données dans les méthodes de classe
-            place = Place(**place_data, owner_id=owner.id)
+            place = Place(**place_data, owner=owner)
             # Ajout de la place dans le storage
             self.place_repository.add(place)
             return place

@@ -14,7 +14,6 @@ class Review(BaseModel):
         nullable=False)                     # Ne peux pas être NULL
 
     _rating = db.Column(                    # Création de la colonne 'rating'
-        'rating',
         db.Integer(),                       # Value = Integer
         nullable=False)                     # Ne peux pas être NULL
 
@@ -37,7 +36,7 @@ class Review(BaseModel):
         back_populates="reviews")           # Nom de la liste dans Place
 
     __table_args__ = (                      # Vérification des données SQL
-        CheckConstraint('rating BETWEEN 1 AND 5', name='check_rating_range'),)
+        CheckConstraint('_rating BETWEEN 1 AND 5', name='check_rating_range'),)
 
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, text, rating, place, user):
