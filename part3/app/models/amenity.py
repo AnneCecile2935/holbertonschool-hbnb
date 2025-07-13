@@ -14,10 +14,10 @@ class Amenity(BaseModel):
         nullable=False,                         # Ne peux pas être NULL
         unique=True)                            # Doit être unique
 
-    places = db.relationship(                      # Lien avec Place
-        'Place',                                   # Nom de la classe liée
-        secondary=place_amenity,                 # Nom de la table secondaire
-        back_populates='amenities')                # Nom de la liste dans Place
+    places = db.relationship(                   # Lien avec Place
+        'Place',                                # Nom de la classe liée
+        secondary=place_amenity,                # Nom de la table secondaire
+        back_populates='amenities')             # Nom de la liste dans Place
 
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, name):
