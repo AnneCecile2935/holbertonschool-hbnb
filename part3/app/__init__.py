@@ -1,12 +1,7 @@
 from flask import Flask
 from flask_restx import Api
-from flask_bcrypt import Bcrypt
 from config import DevelopmentConfig #import propre
-from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import SQLAlchemy
 from app.extensions import db, bcrypt, jwt
-from flask_jwt_extended import JWTManager                   #extension génération de token
 #-------------------------------------------------------------- Import namespace
 
 from app.api.v1.users import api as users_ns                # users
