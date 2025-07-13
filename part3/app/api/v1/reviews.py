@@ -7,22 +7,23 @@ as well as fetching all reviews for a specific place.
 
 Endpoints:
 - /api/v1/reviews/ [GET, POST]: List all reviews or create a new one.
-- /api/v1/reviews/<review_id> [GET, PUT, DELETE]:
-Retrieve, update, or delete a specific review.
-- /api/v1/reviews/places/<place_id>/reviews [GET]:
-Get all reviews for a given place.
+- /api/v1/reviews/<review_id> [GET, PUT, DELETE]: Retrieve, update, or delete
+  a specific review.
+- /api/v1/places/<place_id>/reviews [GET]: Get all reviews for a given place.
 
 Models:
 - review_model: Schema for review creation and validation.
 - review_update_model: Schema for review updates.
-- place_model: Schema for places including nested owner, amenities, and reviews
+- place_model: Schema for places including nested owner, amenities, and
+  reviews.
 """
+
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 from app.api.v1.users import user_model
 from app.api.v1.amenities import amenity_model
-from flask import request
+from app.utils.decorators import handle_errors
 
 api = Namespace(  # Namespace permet de regrouper les routes pr une même entité
     'reviews',    # Le nom du Namespace
@@ -105,45 +106,56 @@ review_place_model = api.model('ReviewPlacemodel', {
 # ----------------------------------------- Route POST & GET : /api/v1/reviews/
 @api.route('/')                 # Création d'une route
 class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
-    """Resource to create a new review and retrieve all reviews."""
+    """
+    Resource to handle creation of new reviews and retrieval of all reviews.
+
+    POST:
+        Create a new review by an authenticated user.
+        Validations:
+            - The referenced place exists.
+            - The user is not the owner of the place.
+            - The user has not already reviewed this place.
+
+    GET:
+        Retrieve a list of all reviews.
+    """
     @api.expect(review_model, validate=True)        # Vérifie avec review_model
     @api.response(201, 'Review successfully created')               # OK
     @api.response(400, 'Invalid input data')                        # NOK
     @api.response(400, 'User or Place not found')                   # NOK
+    @handle_errors
     @jwt_required()
 # ---------------------------------- Fonction pour enregister un nouveau review
     def post(self):
         """
         Create a new review.
 
-        This method allows an authenticated user to post a review for
-        a specific place.
-        It checks that:
-        - The place exists
-        - The user is not reviewing their own place
-        - The user hasn't already submitted a review for the same place
+        Requires JWT authentication. The user must not be the owner of the
+        place, and must not have already reviewed the place.
 
-        Expected JSON payload:
+        Request JSON payload:
             {
-                "place_id": int,
+                "place_id": str,
+                "user_id": str,
                 "text": str,
-                "rating": int
+                "rating": int (1-5)
             }
 
         Returns:
-            - 201 with the created review if successful
-            - 400 if user tries to review their own place or already
-            reviewed it
-            - 404 if the place does not exist
+            201 with the created review data on success,
+            400 if user is not allowed to review,
+            404 if the place does not exist.
         """
         current_user = get_jwt_identity()
         # Récupère l'identité de l'utilisateur connecté via le token JWT
         user_id = current_user['id']
-
-
         review_data = api.payload      # Récup les datas envoyées par le client
         # Extrait l'ID du lieu depuis les données
-        place_id = review_data.get('place_id') if isinstance(review_data, dict) else review_data
+        place_id = (
+            review_data.get('place_id')
+            if isinstance(review_data, dict)
+            else review_data
+        )
         # Vérifie si le lieu existe dans la base
         place = facade.get_place(place_id)
         if not place:
@@ -156,30 +168,28 @@ class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
         # Vérifie si l'utilisateur a déjà laissé un avis pour ce lieu
         if any(review.user_id == user_id for review in existing_reviews):
             return {'error': 'You have already reviewed this place'}, 400
-        try:
-             # Si tout est valide, crée un nouvel avis avec les données fournies
-            new_review = facade.create_review(review_data)
-            # Retourne les infos de l'avis créé sous forme de JSON
-            return {
-                'id': new_review.id,
-                'place_id': new_review.place_id,
-                'user_id': new_review.user_id,
-                'text': new_review.text,
-                'rating': new_review.rating
+        # Si tout est valide, crée un nouvel avis avec les donnéesfournies
+        new_review = facade.create_review(review_data)
+        # Retourne les infos de l'avis créé sous forme de JSON
+        return {
+            'id': new_review.id,
+            'place_id': new_review.place_id,
+            'user_id': new_review.user_id,
+            'text': new_review.text,
+            'rating': new_review.rating
             }, 201                              # Création OK
-
-        except (ValueError, TypeError) as e:   # Utilise les methodes de classe
-            return {'error': str(e)}, 400
 
 # ----------------------------------------- Route POST & GET : /api/v1/reviews/
     @api.response(200, 'List of reviews retrieved successfully')
 # -------------------------------- Fonction pour récupérer la liste des reviews
     def get(self):
         """
-        Retrieve a list of all reviews.
+        Retrieve all reviews.
+
+        Returns a list of all reviews with their details.
 
         Returns:
-            list: A list of all reviews with HTTP 200 status.
+            200 with a list of reviews.
         """
         # Récupère les reviews dans le _storage
         reviews = facade.get_all_reviews()
@@ -199,66 +209,73 @@ class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
 # ----------------------- Route GET, PUT & DELETE : /api/v1/reviews/<review_id>
 @api.route('/<review_id>')             # Création d'une route
 class ReviewResource(Resource):        # Récupération des méthodes par Resource
-    """Resource for retrieving, updating, and deleting a review by its ID."""
+    """
+    Resource for retrieving, updating, and deleting a review by its ID.
+
+    GET:
+        Retrieve review details by review ID.
+
+    PUT:
+        Update an existing review owned by the authenticated user.
+
+    DELETE:
+        Delete an existing review owned by the authenticated user.
+    """
     @api.response(200, 'Review details retrieved successfully')     # OK
-    @api.response(400, 'Invalid input data')                        # NOK
     @api.response(404, 'Review not found')                          # NOK
+    @handle_errors
 # -------------------------------- Fonction pour récupérer un review par son id
     def get(self, review_id):
         """
-        Get review details by ID.
+        Retrieve details of a specific review by ID.
 
         Args:
-            review_id (str): The ID of the review to retrieve.
+            review_id (str): Review ID to retrieve.
 
         Returns:
-            dict: Review details with HTTP 200 on success,
-                  or error message with HTTP 404 or 400 on failure.
+            200 with review data on success,
+            404 if review not found.
         """
-        try:
-            # Récupère l'id par la façade
-            review = facade.get_review(review_id)
-            if not review:                      # Si la review n'est pas trouvé
-                return {'error': 'Review not found'}, 404           # Erreur
-            return {                            # Sinon retourne le review
-                'id': review.id,
-                'place_id': review.place_id,
-                'user_id': review.user_id,
-                'text': review.text,
-                'rating': review.rating
-            }, 200
-        except (ValueError, TypeError) as e:
-            return {'error': str(e)}, 400
+    # Récupère l'id par la façade
+        review = facade.get_review(review_id)
+        if not review:                      # Si la review n'est pas trouvé
+            return {'error': 'Review not found'}, 404           # Erreur
+        return {                            # Sinon retourne le review
+            'id': review.id,
+            'place_id': review.place_id,
+            'user_id': review.user_id,
+            'text': review.text,
+            'rating': review.rating
+        }, 200
 
 # ----------------------- Route GET, PUT & DELETE : /api/v1/reviews/<review_id>
     # Vérifie avec review_update_model
     @api.expect(review_update_model, validate=True)
     @api.response(200, 'Review updated successfully')       # OK
     @api.response(404, 'Review not found')                  # NOK
-    @api.response(400, 'Invalid input data')                # NOK
+    @handle_errors
     @jwt_required()
 # --------------------------------- Fonction pour modifier un review par son id
     def put(self, review_id):
         """
-        Update a review's information.
+        Update a review's content and rating.
 
-        This method allows an authenticated user to update **their own** review.
-        It ensures that:
-        - The review exists
-        - The user owns the review
-        - The data is valid
+        Requires JWT authentication. The user must own the review.
 
         Args:
-            review_id (str): The ID of the review to update.
+            review_id (str): Review ID to update.
 
-        Expects:
-            A JSON payload matching the `review_update_model` schema.
+        Request JSON payload must match `review_update_model` schema:
+            {
+                "text": str,
+                "rating": int (1-5)
+            }
 
         Returns:
-            - 200 with the updated review if successful
-            - 403 if the user does not own the review
-            - 404 if the review is not found
-            - 400 if the payload is invalid
+            200 with updated review data on success,
+            403 if user does not own the review,
+            404 if review not found,
+            400 if payload invalid.
         """
         current_user = get_jwt_identity()
         user_id = current_user['id']
@@ -267,26 +284,20 @@ class ReviewResource(Resource):        # Récupération des méthodes par Resour
         if not review:
             return {'error': "Review not found"}, 404
         # Check if the current user is the owner of the review
-        if review.user_id != user_id:
+        if str(review.user_id) != str(user_id):
             return {'error': 'Unauthorized action'}, 403
         # Get the update data sent by the client
-        update_data = api.payload
 
-        try:
-            # Vérifie les nouvelles données et si OK modifie le review
-            updated_review = facade.update_review(review_id, update_data)
-            if not updated_review:                      # Si review pas trouvé
-                return {'error': 'Review not found'}, 404   # Erreur
-            return {
-                'id': updated_review.id,
-                'text': updated_review.text,
-                'rating': updated_review.rating
-            }, 200                                          # Modification OK
-        except (ValueError, TypeError) as e:
-            return {'error': str(e)}, 400
+        updated_review = facade.update_review(review_id, api.payload)
+        return {
+            'id': updated_review.id,
+            'text': updated_review.text,
+            'rating': updated_review.rating
+        }, 200                                          # Modification OK
 
 # ----------------------- Route GET, PUT & DELETE : /api/v1/reviews/<review_id>
-    @api.response(204, 'Review deleted successfully')           # OK
+    @api.response(200, 'Review deleted successfully')           # OK
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'Review not found')                      # NOK
     @jwt_required()
 # -------------------------------- Fonction pour supprimer un review par son id
@@ -294,11 +305,15 @@ class ReviewResource(Resource):        # Récupération des méthodes par Resour
         """
         Delete a review by its ID.
 
+        Requires JWT authentication. The user must own the review.
+
         Args:
-            review_id (str): The unique identifier of the review to delete.
+            review_id (str): Review ID to delete.
 
         Returns:
-            dict: Success or error message with appropriate HTTP status code.
+            200 with success message on deletion,
+            403 if user does not own the review,
+            404 if review not found.
         """
         current_user = get_jwt_identity()
         user_id = current_user['id']
@@ -312,13 +327,18 @@ class ReviewResource(Resource):        # Récupération des méthodes par Resour
         success = facade.delete_review(review_id)
         if not success:                            # Si échec return une erreur
             return {'error': 'Review not found'}, 404
-        return {'message': 'Review deleted successfully'}, 204
+        return {'message': 'Review deleted successfully'}, 200
 
 
 # ------------------------------- Route GET : /api/v1/places/<place_id>/reviews
 @api.route('/places/<place_id>/reviews')                # Création d'une route
 class ReviewsByPlace(Resource):        # Récupération des méthodes par Resource
-    """Resource to retrieve all reviews for a specific place."""
+    """
+    Resource to retrieve all reviews for a specific place.
+
+    GET:
+        Retrieve all reviews associated with the specified place ID.
+    """
     @api.response(200, 'List of reviews for the specified place')   # OK
     @api.response(404, 'Place not found')                           # NOK
     def get(self, place_id):
@@ -326,15 +346,15 @@ class ReviewsByPlace(Resource):        # Récupération des méthodes par Resour
         Get all reviews for a specific place.
 
         Args:
-            place_id (str): The ID of the place.
+            place_id (str): ID of the place whose reviews are being requested.
 
         Returns:
-            list: List of reviews for the place with HTTP 200,
-                  or error message with HTTP 404 if place not found.
+            200: A list of reviews for the specified place.
+            404: Error if the place is not found.
         """
         place = facade.get_place(place_id)      # Récupère la place par son id
         if not place:                  # Si la place n'est pas trouvée = Erreur
-            return {'error': 'Place not found'}, 400
+            return {'error': 'Place not found'}, 404
         # Récupère les reviews via l'id de la place
         reviews = facade.get_reviews_by_place(place_id)
         reviews_place_list = []

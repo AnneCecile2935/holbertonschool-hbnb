@@ -196,30 +196,81 @@ class InMemoryRepository(Repository):
         """Clear all data from the in-memory storage."""
         self._storage.clear()
 
+
 class SQLAlchemyRepository(Repository):
+    """
+    SQLAlchemy-backed implementation of the Repository interface.
+
+    Provides persistence using SQLAlchemy's ORM system.
+
+    Attributes:
+    - model: The SQLAlchemy model class managed by the repository.
+    """
     def __init__(self, model):
+        """
+        Initialize the repository with a specific SQLAlchemy model.
+
+        Parameter:
+        - model: The SQLAlchemy model class to operate on.
+        """
         self.model = model
 
     def add(self, obj):
+        """
+        Add an object to the database.
+
+        Parameter:
+        - obj: The SQLAlchemy model instance to add.
+        """
         from app import db
         db.session.add(obj)
         db.session.commit()
 
     def get(self, obj_id):
+        """
+        Retrieve an object by its ID.
+
+        Parameter:
+        - obj_id: The primary key of the object.
+
+        Returns:
+        - The object if found, else None.
+        """
         return self.model.query.get(obj_id)
 
     def get_all(self):
+        """
+        Retrieve all objects from the database.
+
+        Returns:
+        - A list of all objects.
+        """
         return self.model.query.all()
 
     def update(self, obj_id, data):
+        """
+        Update an existing object in the database.
+
+        Parameters:
+        - obj_id: The ID of the object to update.
+        - data: A dictionary of attribute names and new values.
+        """
         from app import db
         obj = self.get(obj_id)
-        if obj:
-            for key, value in data.items():
-                setattr(obj, key, value)
-            db.session.commit()
+        if not obj:
+            raise ValueError(f"Object with ID '{obj_id} not found")
+
+        for key, value in data.items():
+            setattr(obj, key, value)
+        db.session.commit()
 
     def delete(self, obj_id):
+        """
+        Delete an object from the database.
+
+        Parameter:
+        - obj_id: The ID of the object to delete.
+        """
         from app import db
         obj = self.get(obj_id)
         if obj:
@@ -227,5 +278,16 @@ class SQLAlchemyRepository(Repository):
             db.session.commit()
 
     def get_by_attribute(self, attr_name, attr_value):
-        return self.model.query.filter(getattr(self.model, attr_name) == attr_value).first()
+        """
+        Retrieve the first object where the given attribute matches the value.
 
+        Parameters:
+        - attr_name: The model attribute to filter on.
+        - attr_value: The value to match.
+
+        Returns:
+        - The matching object, or None if no match is found.
+        """
+        return self.model.query.filter(
+            getattr(self.model, attr_name) == attr_value
+            ).first()
