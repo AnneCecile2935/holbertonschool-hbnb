@@ -146,15 +146,6 @@ class User(BaseModel):
         if not self.is_valid_email(cleaned_email):
             raise ValueError("Email format is invalid")
 
-        from app.models.user import User as UserModel  # évite circular import
-
-        # Récupère le user par sont email (utile pour search, modif et delete)
-        existing_user = UserModel.query.filter_by(email=cleaned_email).first()
-
-        # Vérifie si l'email est déjà utilisé
-        if existing_user and existing_user.id != self.id:
-            raise ValueError("This email is already used")
-
         # Si tout est OK passe la valeur à l'attribut
         self._email = cleaned_email
 

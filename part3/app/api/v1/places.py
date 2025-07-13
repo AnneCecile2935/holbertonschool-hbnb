@@ -124,14 +124,7 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         elif place_data["owner"] != current_user["id"]:
             return {'error': 'Unauthorized action'}, 403
 
-        new_place = facade.create_place(
-            title=place_data.get("title"),
-            price=place_data.get("price"),
-            latitude=place_data.get("latitude"),
-            longitude=place_data.get("longitude"),
-            owner=owner,
-            description=place_data.get("description")
-        )
+        new_place = facade.create_place(place_data)
 
         return {
             'id': new_place.id,

@@ -58,12 +58,5 @@ class Amenity(BaseModel):
         if len(value) > 50:
             raise ValueError("Name is too long, more than 50 characters")
 
-        # Recherche du nom de l'amenity dans la BDD
-        existing = Amenity.query.filter_by(_name=value).first()
-
-        # Vérifie que l'amenity n'existe pas déjà dans la BDD
-        if existing and existing.id != self.id:
-            raise ValueError("This amenity is already registered.")
-
         # Si tout est OK passe value à l'attribut 'name'
         self._name = value
