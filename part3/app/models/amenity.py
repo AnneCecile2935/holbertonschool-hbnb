@@ -2,6 +2,7 @@
 from sqlalchemy.ext.hybrid import hybrid_property
 from app.extensions import db
 from .base_model import BaseModel
+from .place_amenity import place_amenity
 
 
 class Amenity(BaseModel):
@@ -15,7 +16,7 @@ class Amenity(BaseModel):
 
     places = db.relationship(                      # Lien avec Place
         'Place',                                   # Nom de la classe liée
-        secondary='place_amenity',                 # Nom de la table secondaire
+        secondary=place_amenity,                 # Nom de la table secondaire
         back_populates='amenities')                # Nom de la liste dans Place
 
 # --------------------------------------- Définition des attributs de la classe
