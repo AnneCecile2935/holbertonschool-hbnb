@@ -19,6 +19,7 @@ initialization if `place.add_review()` is defined.
 from app.extensions import db
 from app.models.base_model import BaseModel
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
 
 class Review(BaseModel):
     """
@@ -50,6 +51,8 @@ class Review(BaseModel):
         db.String(),
         db.ForeignKey("users.id"),
         nullable=False)
+    user = relationship("User", back_populates="reviews")
+    place = relationship("Place", back_populates="reviews")
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, text, rating, place, user):
         """
@@ -69,8 +72,8 @@ class Review(BaseModel):
         super().__init__()
         self.text = text
         self.rating = rating
-        self.place = place
-        self.user = user
+        self.place_obj = place
+        self.user_obj = user
 # ---------------------------------------- Représentation visuelle de la classe
     def __repr__(self):
         return (
@@ -120,7 +123,7 @@ class Review(BaseModel):
         self._rating = value
 # --------------------------------------------------------- Gestion de la place
     @hybrid_property
-    def place(self):
+    def place_obj(self):
         """
         Place: Gets or sets the place being reviewed.
 
@@ -130,15 +133,15 @@ class Review(BaseModel):
         """
         return self.place_id
 
-    @place.setter
-    def place(self, value):
+    @place_obj.setter
+    def place_obj(self, value):
         from app.models.place import Place
         if not hasattr(value, "id"):
             raise TypeError("The place must be an object Place with an id")
         self.place_id = value.id
 # ------------------------------------------------------------ Gestion du title
     @hybrid_property
-    def user(self):
+    def user_obj(self):
         """
         User: Gets or sets the user who wrote the review.
 
@@ -147,8 +150,8 @@ class Review(BaseModel):
         """
         return self.user_id
 
-    @user.setter
-    def user(self, value):
+    @user_obj.setter
+    def user_obj(self, value):
         if not hasattr(value, "id"):
             raise TypeError("user must be an object with an id")
         self.user_id = value.id

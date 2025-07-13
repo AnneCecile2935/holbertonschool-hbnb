@@ -1,11 +1,57 @@
+"""
+Admin Module
+
+This module provides API endpoints for administrative operations related
+ to user management,
+amenities, and places within the application.
+
+It includes:
+
+- Creation and modification of users by administrators.
+- Creation and modification of amenities.
+- Updating place details with access control (only admins or owners can
+update places).
+- A decorator to restrict access to admin-only endpoints.
+- Input validation using Flask-RESTx models.
+- Error handling with custom decorators.
+
+Authentication and authorization are enforced using JWT tokens. Admin
+privileges are checked
+via the 'is_admin' claim in the JWT identity.
+
+Endpoints:
+- POST   /users/             : Create a new user (admin only).
+- PUT    /users/<user_id>    : Update user details (admin only).
+- POST   /amenities/         : Create a new amenity (admin only).
+- PUT    /amenities/<amenity_id> : Update an existing amenity (admin only).
+- PUT    /places/<place_id>  : Update a place (admin or owner only).
+
+Models:
+- Admin_User: Model for creating a user.
+- Admin_UserUpdate: Model for updating a user.
+- Admin_Amenity: Model for creating or updating an amenity.
+- Admin_PlaceUpdate: Model for updating a place.
+
+Usage:
+This module is intended to be included as part of the API blueprint and
+should be protected with proper JWT authentication.
+
+"""
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+from functools import wraps
+from app.utils.decorators import handle_errors
+from werkzeug.security import generate_password_hash
 
 api = Namespace(
     'admin',
     description='Admin operations'
 )
+# ====================
+# Models
+# ====================
+
 
 admin_user_model = api.model('Admin_User', {
     'first_name': fields.String(                # "fields.String" = string
@@ -20,11 +66,11 @@ admin_user_model = api.model('Admin_User', {
         required=True,                          # Champ obligatoire
         description='Email of the user'         # Description
     ),
-    'is_admin':fields.Boolean(
+    'is_admin': fields.Boolean(
         required=True,
         description='User is or not admin'
     ),
-    'password' : fields.String(
+    'password': fields.String(
         required=True,
         description='User pass_word of new user will be hashed automatically'
     )
@@ -39,105 +85,140 @@ admin_user_update_model = api.model('Admin_UserUpdate', {
     'email': fields.String(
         description='Email of the user'         # Description
     ),
-    'password' : fields.String(
+    'password': fields.String(
         description='User pass_word of new user will be hashed automatically'
     )
 })
-admin_amenity_model = api.model('Admin_Amenity', {          # "model" permet de déclarer
+admin_amenity_model = api.model('Admin_Amenity', {
     'name': fields.String(                      # "fields.String" = string
         required=True,                          # Champ obligatoire
         description='Name of amenity'           # Description
     )
 })
-admin_place_update_model = api.model('Admin_PlaceUpdate', {    # "model" permet de déclarer
-    'title': fields.String(                         # "fields.String" = string
-        description='Title of the place'            # Description
+admin_place_update_model = api.model('Admin_PlaceUpdate', {
+    'title': fields.String(
+        description='Title of the place'
     ),
-    'description': fields.String(                   # "fields.String" = string
-        description='Description of the place'      # Description
+    'description': fields.String(
+        description='Description of the place'
     ),
-    'price': fields.Float(                          # "fields.Float" = Float
-        description='Price per night'               # Description
+    'price': fields.Float(
+        description='Price per night'
     ),
-    'latitude': fields.Float(                       # "fields.Float" = Float
-        description='Latitude coordinate'           # Description
+    'latitude': fields.Float(
+        description='Latitude coordinate'
     ),
-    'longitude': fields.Float(                      # "fields.Float" = Float
-        description='Longitude coordinate'          # Description
+    'longitude': fields.Float(
+        description='Longitude coordinate'
     )
 })
+# ====================
+# Utility decorators
+# ====================
+
+
+def admin_only(f):
+    """
+    Decorator to restrict access to admin users only.
+
+    Requires a valid JWT token and checks the 'is_admin' claim in the
+    token identity.
+    Returns HTTP 403 Forbidden if the user is not an admin.
+    """
+    @wraps(f)
+    @jwt_required()
+    def decorated(*args, **kwargs):
+        # remplace fct inter remplece f,
+        # accepte tous args pour s'adapter à n'importe quelle fct décorée
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+        return f(*args, **kwargs)
+    # si le admin, on execute fct décorée en passant tous les arg
+    return decorated
+    # retour de la fonction décorée
+
+
+# ====================
+# Routes
+# ====================
+
+
 @api.route('/users/')
 class AdminUserCreate(Resource):
     @api.expect(admin_user_model, validate=True)
     @api.response(201, 'User successfully created')                       # OK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
-    @jwt_required()
+    @admin_only
+    @handle_errors
     def post(self):
-        try:
-            current_user = get_jwt_identity()        # Récupère le token du user courant
-            if not current_user.get('is_admin'):     # Vérifie si le user courant est un admin
-                return {'error': 'Admin privileges required'}, 403  # Si il ne l'est pas = Erreur
+        """
+        Create a new user.
 
-            user_data = api.payload                  # Récupère les données passées par le user
-            # Vérifie les données et si ok crée un nouvel user
-            new_user = facade.create_user(user_data)
-            return {                           # Retourne un obj JSON key/value
-                'id': new_user.id,
-                'message': 'User created successfully'
-            }, 201                                                # Création Ok
-        except (ValueError, TypeError) as e:   # Utilise les méthodes de classe
-            return {'error': str(e)}, 400     # Return obj error et code status
+        This endpoint allows an admin user to create a new user.
+        Passwords will be hashed automatically.
+
+        Returns:
+            JSON containing the new user's ID and a success message.
+        """
+        user_data = api.payload
+        new_user = facade.create_user(user_data)
+        return {'id': new_user.id, 'message': 'User created successfully'}, 201
 
 
 @api.route('/users/<user_id>')
 class AdminUserResource(Resource):
-    @api.expect(admin_user_update_model, validate=True)            # Vérifie avec user_model
-    @api.response(200, 'User modified successfully')                      # OK
-    @api.response(404, 'User not found')                                  # NOK
-    @api.response(400, 'Invalid input data or email already registered')  # NOK
-    @jwt_required()
+    @api.expect(admin_user_update_model, validate=True)
+    @api.response(200, 'User modified successfully')
+    @api.response(404, 'User not found')
+    @api.response(400, 'Invalid input data or email already registered')
+    @admin_only
+    @handle_errors
     def put(self, user_id):
-        try:
-            current_user = get_jwt_identity()
-            if not current_user.get('is_admin'):
-                return {'error': 'Admin privileges required'}, 403
+        """
+        Update an existing user's information.
 
-            updated_user_data = api.payload
-            # Vérifie les nouvelles données et si OK modifie le user
-            updated_user = facade.update_user(user_id, updated_user_data)
-            return {
-                'id': updated_user.id,
-                'first_name': updated_user.first_name,
-                'last_name': updated_user.last_name,
-                'email': updated_user.email
-            }, 200                                            # Modification OK
-        except ValueError as e:
-            # Si le message d'erreur contient 'not found'
-            if 'not found' in str(e).lower():
-                return {'error': str(e)}, 404                # Return 404
-            return {'error': str(e)}, 400                    # Sinon return 400
+        Allows partial or full update of user details by admin.
+        Password updates will be hashed automatically.
+
+        Args:
+            user_id (str): ID of the user to update.
+
+        Returns:
+            JSON containing updated user info.
+        """
+        updated_user_data = api.payload
+        if 'password' in updated_user_data:
+            updated_user_data['password'] = generate_password_hash(updated_user_data['password'])
+        updated_user = facade.update_user(user_id, updated_user_data)
+        return {
+            'id': updated_user.id,
+            'first_name': updated_user.first_name,
+            'last_name': updated_user.last_name,
+            'email': updated_user.email
+        }, 200
+
 
 @api.route('/amenities/')
 class AdminAmenityCreate(Resource):
-    @api.expect(admin_amenity_model, validate=True)      # Vérifie avec amenity_model
+    @api.expect(admin_amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')                    # OK
     @api.response(400, 'Invalid input data or name already registered')   # NOK
-    @jwt_required()
+    @admin_only
+    @handle_errors
     def post(self):
-        try:
-            current_user = get_jwt_identity()
-            if not current_user.get('is_admin'):
-                return {'error': 'Admin privileges required'}, 403
+        """
+        Create a new amenity.
 
-            amenity_data = api.payload                  # Récupère les données
-            # Vérifie les données et si OK crée un nouvel amenity
-            new_amenity = facade.create_amenity(amenity_data)
-            return {                           # Retourne un obj JSON key/value
-                'id': new_amenity.id,
-                'name': new_amenity.name
-            }, 201                                                # Création Ok
-        except (TypeError, ValueError) as e:  # Utilise les méthodes de classe
-            return {'error': str(e)}, 400     # Return obj error et code status
+        Admins can add new amenities to the system.
+
+        Returns:
+            JSON containing the new amenity's ID and name.
+        """
+        amenity_data = api.payload
+        new_amenity = facade.create_amenity(amenity_data)
+        return {'id': new_amenity.id, 'name': new_amenity.name}, 201
+
 
 @api.route('/amenities/<amenity_id>')
 class AdminAmenityModify(Resource):
@@ -145,24 +226,22 @@ class AdminAmenityModify(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
+    @admin_only
+    @handle_errors
     def put(self, amenity_id):
-        try:
-            current_user = get_jwt_identity()
-            if not current_user.get('is_admin'):
-                return {'error': 'Admin privileges required'}, 403
-            amenity_data = api.payload             # Récupère nouvelles données
-            # Vérifie les nouvelles données et si OK modifie l'amenity
-            updated_amenity = facade.update_amenity(amenity_id, amenity_data)
-            return {
-                'id': updated_amenity.id,
-                'name': updated_amenity.name
-            }, 200                                          # OK
-        except ValueError as e:
-            # Si le message d'erreur contient 'not found'
-            if 'not found' in str(e).lower():
-                return {'error': str(e)}, 404               # Return 404
-            return {'error': str(e)}, 400
+        """
+        Update an existing amenity.
+
+        Args:
+            amenity_id (str): ID of the amenity to update.
+
+        Returns:
+            JSON containing the updated amenity's ID and name.
+        """
+        amenity_data = api.payload
+        updated_amenity = facade.update_amenity(amenity_id, amenity_data)
+        return {'id': updated_amenity.id, 'name': updated_amenity.name}, 200
+
 
 @api.route('/places/<place_id>')
 class AdminPlaceModify(Resource):
@@ -170,33 +249,38 @@ class AdminPlaceModify(Resource):
     @api.response(200, 'Place updated succesfully')
     @api.response(404, 'Place not found')
     @jwt_required()
+    @handle_errors
     def put(self, place_id):
-        try:
-            current_user = get_jwt_identity()
+        """
+        Update a place's details.
 
-            # Set is_admin default to False if not exists
-            is_admin = current_user.get('is_admin', False)
-            user_id = current_user.get('id')
+        Only admins or the owner of the place can perform updates.
+        Modification of the 'owner' field is forbidden.
 
-            place = facade.get_place(place_id)
-            if not is_admin and place.owner_id != user_id:
-                return {'error': 'Unauthorized action'}, 403
+        Args:
+            place_id (str): ID of the place to update.
 
-            update_data = api.payload          # Récupère les nouvelles données
-            # Vérification que un champ owner est été remplis
-            if 'owner' in update_data:
-                return {
-                    'error': "Modification of 'owner' field is not allowed."
-                }, 400
-            # Vérifie les nouvelles données et si OK modifie la place
-            updated_place = facade.update_place(place_id, update_data)
+        Returns:
+            JSON containing updated place details.
+        """
+        current_user = get_jwt_identity()
+        is_admin = current_user.get('is_admin', False)
+        user_id = current_user.get('id')
+
+        place = facade.get_place(place_id)
+        if not is_admin and place.owner_id != user_id:
+            return {'error': 'Unauthorized action'}, 403
+
+        update_data = api.payload          # Récupère les nouvelles données
+        if 'owner' in update_data:
             return {
-                'id': updated_place.id,
-                'description': updated_place.description,
-                'title': updated_place.title,
-                'price': updated_place.price,
-            }, 200
-        except ValueError as ve:
-            return {'error': str(ve)}, 400
-        except Exception as e:
-            return {'error': f'Unexpected error: {str(e)}'}, 400
+                'error': "Modification of 'owner' field is not allowed."
+            }, 400
+
+        updated_place = facade.update_place(place_id, update_data)
+        return {
+            'id': updated_place.id,
+            'description': updated_place.description,
+            'title': updated_place.title,
+            'price': updated_place.price,
+        }, 200

@@ -45,9 +45,9 @@ class User(BaseModel):
     backref="user",
     cascade="all, delete-orphan")
 
-    review = relationship(              # Relation entre le user et ses review
+    reviews = relationship(              # Relation entre le user et ses review
     "Review",
-    backref="user",
+    back_populates="user",
     cascade="all, delete-orphan")
 # --------------------------------------- Définition des attributs de la classe
     def __init__(
