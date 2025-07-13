@@ -11,7 +11,7 @@ class Review(BaseModel):
 # ----------------------------------- Création des colonnes de la table reviews
     _text = db.Column(                      # Création de la colonne 'text'
         db.String(),                        # Value = String
-        nullable=True)                     # Peux être NULL
+        nullable=False)                     # Ne peux pas être NULL
 
     _rating = db.Column(                    # Création de la colonne 'rating'
         'rating',
