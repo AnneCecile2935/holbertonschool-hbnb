@@ -17,6 +17,7 @@ class Amenity(BaseModel):
         'Place',                                   # Nom de la classe liée
         secondary='place_amenity',                 # Nom de la table secondaire
         back_populates='amenities')                # Nom de la liste dans Place
+
 # --------------------------------------- Définition des attributs de la classe
     def __init__(self, name):
         """Initialize Amenity with a name."""

@@ -2,6 +2,8 @@
 from app.extensions import db
 from datetime import datetime
 import uuid
+
+
 class BaseModel(db.Model):
     """Base model with common fields and methods (abstract)."""
     __abstract__ = True              # Pas de table crée mais colonnes héritées
