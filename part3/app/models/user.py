@@ -33,7 +33,7 @@ class User(BaseModel):
 
     places = db.relationship(           # Lien avec Place
         "Place",                        # Nom de la classe liée
-        back_populates="user",          # Nom de la liste dans Place
+        back_populates="owner_rel",      # Nom de la liste dans Place
         cascade="all, delete-orphan")   # Gestion de la récupération et delete
 
     reviews = db.relationship(          # Lien avec Review

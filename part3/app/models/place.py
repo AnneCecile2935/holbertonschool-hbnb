@@ -41,6 +41,10 @@ class Place(BaseModel):
         db.ForeignKey("users.id"),       # Relie Place à users.id
         nullable=False)                  # Ne peux pas être NULL
 
+    owner_rel = db.relationship(             # Lien avec User
+        "User",                          # Nom de la classe liée
+        back_populates="places")        # Nom de la liste dans User
+
     reviews = relationship(              # Lien avec Review
         "Review",                        # Nom de la classe liée
         back_populates="place",          # Nom de la liste dans Review
