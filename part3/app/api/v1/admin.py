@@ -277,10 +277,12 @@ class AdminPlaceModify(Resource):
                 'error': "Modification of 'owner' field is not allowed."
             }, 400
 
-        updated_place = facade.update_place(place_id, update_data)
+        updated_place = facade.update_place(place_id, update_data, is_admin=is_admin)
         return {
             'id': updated_place.id,
             'description': updated_place.description,
             'title': updated_place.title,
             'price': updated_place.price,
+            'latitude': updated_place.latitude,
+            'longitude': updated_place.longitude
         }, 200
