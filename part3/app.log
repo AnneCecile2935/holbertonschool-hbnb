@@ -289,3 +289,56 @@
 2025-07-14 01:08:49,143 INFO:  * Debugger PIN: 256-555-841
 2025-07-14 01:10:33,631 WARNING:  * Debugger is active!
 2025-07-14 01:10:33,635 INFO:  * Debugger PIN: 256-555-841
+2025-07-14 14:36:14,590 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-07-14 14:36:14,601 INFO: [33mPress CTRL+C to quit[0m
+2025-07-14 14:36:14,602 INFO:  * Restarting with stat
+2025-07-14 14:36:15,025 WARNING:  * Debugger is active!
+2025-07-14 14:36:15,051 INFO:  * Debugger PIN: 690-149-335
+2025-07-14 14:36:18,951 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:18] "[33mGET / HTTP/1.1[0m" 404 -
+2025-07-14 14:36:25,565 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "GET /api/v1/ HTTP/1.1" 200 -
+2025-07-14 14:36:25,605 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "[36mGET /swaggerui/swagger-ui.css HTTP/1.1[0m" 304 -
+2025-07-14 14:36:25,606 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "[36mGET /swaggerui/droid-sans.css HTTP/1.1[0m" 304 -
+2025-07-14 14:36:25,609 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "[36mGET /swaggerui/swagger-ui-bundle.js HTTP/1.1[0m" 304 -
+2025-07-14 14:36:25,609 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "[36mGET /swaggerui/swagger-ui-standalone-preset.js HTTP/1.1[0m" 304 -
+2025-07-14 14:36:25,771 INFO: 127.0.0.1 - - [14/Jul/2025 14:36:25] "GET /swagger.json HTTP/1.1" 200 -
+2025-07-14 14:38:18,882 INFO:  * Detected change in '/home/helvlaska/holbertonschool-hbnb/part3/app/api/v1/users.py', reloading
+2025-07-14 14:38:19,090 INFO:  * Restarting with stat
+2025-07-14 14:38:19,566 WARNING:  * Debugger is active!
+2025-07-14 14:38:19,570 INFO:  * Debugger PIN: 690-149-335
+2025-07-14 14:38:25,614 INFO:  * Detected change in '/home/helvlaska/holbertonschool-hbnb/part3/app/api/v1/users.py', reloading
+2025-07-14 14:38:25,791 INFO:  * Restarting with stat
+2025-07-14 14:38:26,185 WARNING:  * Debugger is active!
+2025-07-14 14:38:26,188 INFO:  * Debugger PIN: 690-149-335
+2025-07-14 14:38:28,211 INFO:  * Detected change in '/home/helvlaska/holbertonschool-hbnb/part3/app/api/v1/users.py', reloading
+2025-07-14 14:38:28,339 INFO:  * Restarting with stat
+2025-07-14 14:38:28,722 WARNING:  * Debugger is active!
+2025-07-14 14:38:28,725 INFO:  * Debugger PIN: 690-149-335
+2025-07-14 14:41:00,503 INFO: 127.0.0.1 - - [14/Jul/2025 14:41:00] "GET /api/v1/users/ HTTP/1.1" 200 -
+2025-07-14 14:41:29,638 INFO: 127.0.0.1 - - [14/Jul/2025 14:41:29] "POST /api/v1/auth/login HTTP/1.1" 200 -
+2025-07-14 14:42:33,046 INFO: 127.0.0.1 - - [14/Jul/2025 14:42:33] "[31m[1mPUT /api/v1/users/c911c511-8872-40d2-947a-e2fe5d634ba6 HTTP/1.1[0m" 403 -
+2025-07-14 14:46:19,703 INFO: 127.0.0.1 - - [14/Jul/2025 14:46:19] "GET /api/v1/amenities/ HTTP/1.1" 200 -
+2025-07-14 14:46:57,648 INFO: 127.0.0.1 - - [14/Jul/2025 14:46:57] "[35m[1mPOST /api/v1/amenities/ HTTP/1.1[0m" 201 -
+2025-07-14 14:47:19,262 INFO: 127.0.0.1 - - [14/Jul/2025 14:47:19] "GET /api/v1/amenities/ HTTP/1.1" 200 -
+2025-07-14 14:48:01,074 INFO: 127.0.0.1 - - [14/Jul/2025 14:48:01] "[31m[1mPUT /api/v1/amenities/b2dee5ce-2723-4363-947c-0adf44c2149e HTTP/1.1[0m" 400 -
+2025-07-14 14:48:28,484 INFO: 127.0.0.1 - - [14/Jul/2025 14:48:28] "PUT /api/v1/amenities/b2dee5ce-2723-4363-947c-0adf44c2149e HTTP/1.1" 200 -
+2025-07-14 14:48:38,979 INFO: 127.0.0.1 - - [14/Jul/2025 14:48:38] "GET /api/v1/amenities/ HTTP/1.1" 200 -
+2025-07-14 15:33:42,752 INFO:  * Detected change in '/home/helvlaska/holbertonschool-hbnb/part3/app/api/v1/places.py', reloading
+2025-07-14 15:33:42,934 INFO:  * Restarting with stat
+2025-07-14 15:57:25,338 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-07-14 15:57:25,339 INFO: [33mPress CTRL+C to quit[0m
+2025-07-14 15:57:25,340 INFO:  * Restarting with stat
+2025-07-14 15:57:25,767 WARNING:  * Debugger is active!
+2025-07-14 15:57:25,785 INFO:  * Debugger PIN: 690-149-335
+2025-07-14 15:57:28,000 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:28] "[33mGET / HTTP/1.1[0m" 404 -
+2025-07-14 15:57:31,981 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:31] "GET /api/v1/ HTTP/1.1" 200 -
+2025-07-14 15:57:32,021 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:32] "[36mGET /swaggerui/swagger-ui.css HTTP/1.1[0m" 304 -
+2025-07-14 15:57:32,022 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:32] "[36mGET /swaggerui/swagger-ui-bundle.js HTTP/1.1[0m" 304 -
+2025-07-14 15:57:32,024 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:32] "[36mGET /swaggerui/swagger-ui-standalone-preset.js HTTP/1.1[0m" 304 -
+2025-07-14 15:57:32,025 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:32] "[36mGET /swaggerui/droid-sans.css HTTP/1.1[0m" 304 -
+2025-07-14 15:57:32,188 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:32] "GET /swagger.json HTTP/1.1" 200 -
+2025-07-14 15:57:54,083 INFO: 127.0.0.1 - - [14/Jul/2025 15:57:54] "GET /api/v1/users/ HTTP/1.1" 200 -
+2025-07-14 15:58:23,878 INFO: 127.0.0.1 - - [14/Jul/2025 15:58:23] "POST /api/v1/auth/login HTTP/1.1" 200 -
+2025-07-14 15:59:17,368 INFO: 127.0.0.1 - - [14/Jul/2025 15:59:17] "[35m[1mPOST /api/v1/places/ HTTP/1.1[0m" 201 -
+2025-07-14 15:59:21,805 INFO: 127.0.0.1 - - [14/Jul/2025 15:59:21] "[31m[1mPOST /api/v1/places/ HTTP/1.1[0m" 400 -

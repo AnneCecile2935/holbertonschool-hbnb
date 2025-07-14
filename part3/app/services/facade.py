@@ -194,6 +194,18 @@ class HBnBFacade:
         if not owner:
             raise ValueError(f"Owner user with id {owner_id} does not exist.")
 
+        # Boucle pour parcourir les places
+        for existing in self.place_repository.get_all():
+            # Vérifie que les attributs ensemble n'existent pas
+            if (
+                existing.title == place_data.get("title") and
+                existing.latitude == place_data.get("latitude") and
+                existing.longitude == place_data.get("longitude") and
+                existing.owner_id == owner_id
+            ):
+                raise ValueError(
+                    "A place with the same attributs already exists.")
+
         # Supprime l'entrée si elle existe
         place_data.pop('owner', None)
 

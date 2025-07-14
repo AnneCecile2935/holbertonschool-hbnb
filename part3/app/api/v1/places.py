@@ -114,16 +114,26 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             JSON with new place details and HTTP 201 on success,
             or error message with HTTP 400/403 on failure.
         """
+        # Récupère le token du user courant
         current_user = get_jwt_identity()
+        # Récupère les données client
         place_data = api.payload
-        if "owner" not in place_data:
-            return {'error': "Missing 'owner' field"}, 400
+
+        # Vérifie si l'attribut 'owner' est conforme ou vide
+        if not place_data.get("owner"):
+            return {'error': "Missing or empty 'owner' field"}, 400
+
+        # Récupère le user par l'id passé dans owner
         owner = facade.get_user(place_data["owner"])
+
+        # Vérifie si le user existe
         if not owner:
             return {'error': 'Owner user not found'}, 400
+        # Vérifie si le user courant est le owner
         elif place_data["owner"] != current_user["id"]:
             return {'error': 'Unauthorized action'}, 403
 
+        # Si tout est OK création d'une nouvelle place
         new_place = facade.create_place(place_data)
 
         return {

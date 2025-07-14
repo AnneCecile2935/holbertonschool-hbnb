@@ -141,6 +141,7 @@ class UserResource(Resource):   # Récupération des méthodes par Resource
     @api.response(200, 'User modified successfully')                      # OK
     @api.response(404, 'User not found')                                  # NOK
     @api.response(400, 'Invalid input data or email already registered')  # NOK
+    @api.response(403, 'Unauthorized action')                             # NOK
     @handle_errors
     @jwt_required()
     def put(self, user_id):
