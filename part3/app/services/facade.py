@@ -29,7 +29,7 @@ class HBnBFacade:
         try:
             # Passe les données dans les méthodes de classe
             user = User(**user_data)
-            # Vérifie si l'email est déjà utilisé 
+            # Vérifie si l'email est déjà utilisé
             if self.get_user_by_email(user_data['email']):
                 raise ValueError("This email is already registered.")
         except (ValueError, TypeError) as e:
@@ -67,7 +67,7 @@ class HBnBFacade:
             # Recherche le user par sont email
             existing_user = self.get_user_by_email(email)
             # Vérifie si l'email existe déjà
-            if existing_user and existing_user.id != user_id:
+            if existing_user and str(existing_user.id) != str(user_id):
                 raise ValueError(f"Email '{email}' is already registered.")
 
         # Stock les attributs modifiables autorisés
