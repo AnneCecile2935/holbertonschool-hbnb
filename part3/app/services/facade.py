@@ -26,12 +26,13 @@ class HBnBFacade:
 # -------------------------------------------------------- methodes facade user
     def create_user(self, user_data):
         """Create a new user after validation."""
+        if self.get_user_by_email(user_data['email']):
+            raise ValueError("This email is already registered.")
         try:
             # Passe les données dans les méthodes de classe
             user = User(**user_data)
             # Vérifie si l'email est déjà utilisé
-            if self.get_user_by_email(user_data['email']):
-                raise ValueError("This email is already registered.")
+
         except (ValueError, TypeError) as e:
             # Renvoie le bon message selon l'erreur
             raise ValueError(f"Invalid user data: {str(e)}")
@@ -93,6 +94,10 @@ class HBnBFacade:
         # Récupère le 'name' de l'amenity
         name = amenity_data.get("name")
 
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string")
+        name = name.strip()
+
         # Vérifie si il existe déjà dans la BDD
         if self.get_amenity_by_name(name):
             raise ValueError("This amenity is already registered.")
@@ -127,6 +132,19 @@ class HBnBFacade:
         # Vérifie si l'amenity existe
         if not amenity:
             raise ValueError("Amenity not found")
+        name = update_data.get("name")
+
+        if name:
+            if not isinstance(name, str):
+                raise BadRequest("Invalid amenity data: Name must be a string")
+            name = name.strip()
+
+        # Vérifie si un autre amenity porte déjà ce nom
+            existing = self.get_amenity_by_name(name)
+            if existing and existing.id != amenity_id:
+                raise BadRequest("name must be unique")
+
+            update_data["name"] = name  # Ajoute le name nettoyé
 
         try:
             # Mise à jour de l'amenity dans le repo
@@ -193,7 +211,7 @@ class HBnBFacade:
         """Return a list of all places."""
         return self.place_repository.get_all()
 
-    def update_place(self, place_id, place_data):
+    def update_place(self, place_id, place_data, is_admin=False):
         """Update place data after validation."""
         # Récupère l'obj place par son id
         place = self.place_repository.get(place_id)
@@ -204,6 +222,8 @@ class HBnBFacade:
 
         # Stock les attributs modifiables autorisés
         allowed_fields = {'title', 'description', 'price'}
+        if is_admin:
+            allowed_fields |= {'latitude', 'longitude'}
 
         # Boucle pour parcourir les champs modifiés
         for key in place_data:
