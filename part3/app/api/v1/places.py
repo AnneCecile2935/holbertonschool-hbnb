@@ -118,14 +118,14 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
         place_data = api.payload
         if "owner" not in place_data:
             return {'error': "Missing 'owner' field"}, 400
-        owner_id = place_data.get("owner")
-        owner = facade.get_user(owner_id)
+        owner = facade.get_user(place_data["owner"])
         if not owner:
             return {'error': 'Owner user not found'}, 400
-        elif owner_id != current_user['id']:
+        elif place_data["owner"] != current_user["id"]:
             return {'error': 'Unauthorized action'}, 403
 
         new_place = facade.create_place(place_data)
+
         return {
             'id': new_place.id,
             'title': new_place.title,

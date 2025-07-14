@@ -29,6 +29,9 @@ class HBnBFacade:
         try:
             # Passe les données dans les méthodes de classe
             user = User(**user_data)
+            # Vérifie si l'email est déjà utilisé 
+            if self.get_user_by_email(user_data['email']):
+                raise ValueError("This email is already registered.")
         except (ValueError, TypeError) as e:
             # Renvoie le bon message selon l'erreur
             raise ValueError(f"Invalid user data: {str(e)}")
@@ -87,6 +90,13 @@ class HBnBFacade:
 # ----------------------------------------------------- methodes facade amenity
     def create_amenity(self, amenity_data):
         """Create a new amenity with validation."""
+        # Récupère le 'name' de l'amenity
+        name = amenity_data.get("name")
+
+        # Vérifie si il existe déjà dans la BDD
+        if self.get_amenity_by_name(name):
+            raise ValueError("This amenity is already registered.")
+
         try:
             # Passe les données dans les méthodes de classe
             amenity = Amenity(**amenity_data)
@@ -151,22 +161,6 @@ class HBnBFacade:
         """Get a place by its ID."""
         return self.place_repository.get(place_id)
 
-    def get_reviews_by_place(self, place_id):
-        """Get all reviews related to a specific place."""
-        # Récupère toutes les reviews
-        all_reviews = self.review_repository.get_all()
-        # Création liste vide
-        filtered_reviews = []
-
-        # Boucle sur les reviews de la BDD
-        for review in all_reviews:
-            # Vérifie si la place existe
-            if review.place_id == place_id:
-                # Ajoute la review à la liste
-                filtered_reviews.append(review)
-
-        return filtered_reviews
-
     def create_place(self, place_data):
         """Create a new place linked to its owner after validation."""
         # Vérifie si le champ owner est rempli
@@ -187,7 +181,7 @@ class HBnBFacade:
 
         try:
             # Passe les données dans les méthodes de classe
-            place = Place(**place_data, owner_id=owner.id)
+            place = Place(**place_data, owner=owner)
             # Ajout de la place dans le storage
             self.place_repository.add(place)
             return place
