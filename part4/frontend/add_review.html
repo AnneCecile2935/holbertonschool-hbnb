@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+	<header>
+        <nav>
+			<a href="index.html">Home</a>
+			<img src="images/logo.png" alt="App logo" class="logo">
+            <a href="login.html" id="login-button">Login</a>
+			<a href="place.html">Place Details</a>
+			<a href="add_review.html">Add Review</a>
+        </nav>
+    </header>
     <main>
         <!-- Add something to idfentify the place you're reviewing -->
         <form id="review-form">
@@ -16,10 +25,16 @@
             <label for="rating">Rating:</label>
             <select id="rating" name="rating" required>
                 <!-- Options for rating -->
+				<option value="" disabled selected>-- Choisir une option --</option>
+  				<option value="a">Option A</option>
+  				<option value="b">Option B</option>
             </select>
             <button type="submit">Submit Review</button>
         </form>
     </main>
     <script src="scripts.js"></script>
+	<footer>
+		<p>All rights reserved</p>
+	</footer>
 </body>
 </html>
