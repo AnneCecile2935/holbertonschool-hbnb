@@ -9,20 +9,37 @@
 <body>
     <header>
         <nav>
-            <a href="login.html" id="login-link">Login</a>
+			<a href="index.html">Home</a>
+			<img src="images/logo.png" alt="App logo" class="logo">
+            <a href="login.html" id="login-button">Login</a>
+			<a href="place.html">Place Details</a>
+			<a href="add_review.html">Add Review</a>
         </nav>
     </header>
     <main>
         <section id="filter">
+			<h2>Filter Places</h2>
             <label for="price-filter">Max Price:</label>
             <select id="price-filter">
                 <!-- Options will be populated dynamically -->
+				<option value="">Choose a price</option>
+				<option value="50">Up to $50</option>
+				<option value="100">Up to $100</option>
+				<option value="200">Up to $200</option>
             </select>
         </section>
         <section id="places-list">
             <!-- List of places will be populated dynamically -->
+			<div class="place-card">
+			<h2>nameplace</h2>
+			<p>Pricepernight</p>
+			<button class="details-button">View Details</button>
+			</div>
         </section>
     </main>
     <script src="scripts.js"></script>
+	<footer>
+		<p>All rights reserved</p>
+	</footer>
 </body>
 </html>

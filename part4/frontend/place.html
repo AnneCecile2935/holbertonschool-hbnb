@@ -7,11 +7,35 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+	<header>
+        <nav>
+			<a href="index.html">Home</a>
+			<img src="images/logo.png" alt="App logo" class="logo">
+            <a href="login.html" id="login-button">Login</a>
+			<a href="place.html">Place Details</a>
+			<a href="add_review.html">Add Review</a>
+        </nav>
+    </header>
     <main>
         <section id="place-details">
+			<h1 id="place-name">Placename</h1>
+				<div class="place-info">
+					<p>placeowner</p>
+					<p>Pricepernight</p>
+					<p>description</p>
+					<p>Amenities</p>
+					</div>
             <!-- Place details will be populated dynamically -->
         </section>
         <section id="reviews">
+			<h2>Reviews</h2>
+			<div id="reviews-list">
+				<div class="review-card">
+					<p>text</p>
+					<p>username</p>
+					<p>rating</p>
+				</div>
+			</div>
             <!-- Reviews will be populated dynamically -->
         </section>
         <section id="add-review">
@@ -25,5 +49,8 @@
         </section>
     </main>
     <script src="scripts.js"></script>
+	<footer>
+		<p>All rights reserved</p>
+	</footer>
 </body>
 </html>
