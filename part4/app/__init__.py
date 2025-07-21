@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restx import Api
 from config import DevelopmentConfig #import propre
 from app.extensions import db, bcrypt, jwt
+from flask_cors import CORS
 #-------------------------------------------------------------- Import namespace
 
 from app.api.v1.users import api as users_ns                # users
@@ -27,6 +28,7 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
     bcrypt.init_app(app)
     jwt.init_app(app)
     db.init_app(app)
+    CORS(app, origins=["http://localhost:5500"])
 
     api = Api(              # Infos pour la documentation Swagger
         app,
