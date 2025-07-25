@@ -28,7 +28,7 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
     bcrypt.init_app(app)
     jwt.init_app(app)
     db.init_app(app)
-    CORS(app, origins=["http://localhost:5500"])
+    CORS(app, resources={r"/api/v1/*": {"origins": "http://localhost:5500"}}, supports_credentials=True)
 
     api = Api(              # Infos pour la documentation Swagger
         app,

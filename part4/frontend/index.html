@@ -1,45 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Places</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Places</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <nav>
-			<a href="index.html">Home</a>
-			<img src="images/logo.png" alt="App logo" class="logo">
-            <a href="login.html" id="login-button">Login</a>
-			<a href="place.html">Place Details</a>
-			<a href="add_review.html">Add Review</a>
-        </nav>
-    </header>
-    <main>
-        <section id="filter">
-			<h2>Filter Places</h2>
-            <label for="price-filter">Max Price:</label>
-            <select id="price-filter">
-                <!-- Options will be populated dynamically -->
-				<option value="">All</option>
-				<option value="10">Up to $10</option>
-				<option value="50">Up to $50</option>
-				<option value="100">Up to $100</option>
-            </select>
-        </section>
-        <section id="places-list">
-            <!-- List of places will be populated dynamically -->
-			<div class="place-card">
-			<h2>nameplace</h2>
-			<p>Pricepernight</p>
-			<button class="details-button">View Details</button>
-			</div>
-        </section>
-    </main>
-    <script src="js/scripts.js" defer></script>
-	<footer>
-		<p>All rights reserved</p>
-	</footer>
+  <header>
+    <nav>
+      <a href="index.html">Home</a>
+      <img src="images/logo.png" alt="App logo" class="logo" />
+      <a href="login.html" class="login-button" id="login-button">Login</a>
+	  <a href="#" class="logout-button" id="logout-button" style="display: none;">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <label for="price-filter">Filter by price:</label>
+    <select id="price-filter">
+      <option value="all">All</option>
+      <option value="10">10</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+	<section id="places-list"></section>
+  </main>
+
+  <footer>
+    <p>All rights reserved</p>
+  </footer>
+
+  <script src="js/scripts.js" defer></script>
 </body>
 </html>

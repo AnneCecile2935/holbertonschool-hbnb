@@ -1,91 +1,128 @@
-let allPlaces = [];
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.getElementById('login-form');
 
-function checkAuthentication() {
-      const token = getCookie('access_token');
-      const loginLink = document.getElementById('login-button');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
-      if (!token) {
-          loginLink.style.display = 'block';
-      } else {
-          loginLink.style.display = 'none';
-          // Fetch places data if the user is authenticated
-          fetchPlaces(token);
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if(!email || !password) {
+        alert('Please fill in all required fields.');
+        return;
       }
+      try {
+        const response = await fetch('http://localhost:5000/api/v1/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'
+
+          },
+          body: JSON.stringify({email, password})
+        });
+        if (response.ok) {
+          const data = await response.json();
+          document.cookie = `token=${data.access_token}; path=/`;
+          window.location.href = `index.html`;
+        } else {
+          const error = await response.json();
+          alert('Error connection : ' + (error.message || response.statusText));
+        }
+      }catch (err) {
+        console.error('Error connection :', err);
+        alert('Error during connection attempt.');
+      }
+    });
   }
-function getCookie(name) {
-  const cookies = document.cookie.split(';'); // découpe tous les cookies
-  for (let cookie of cookies) {
-    cookie = cookie.trim(); // enlève les espaces autour
-    if (cookie.startsWith(name + '=')) {
-      return cookie.substring(name.length + 1); // récupère la valeur après 'name='
+  const loginButton = document.getElementById('login-button');
+  const logoutButton = document.getElementById('logout-button');
+
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+  }
+
+  const token = getCookie('token');
+
+  if (token) {
+    if (loginButton) loginButton.style.display = 'none';
+    if (logoutButton) logoutButton.style.display = 'inline-block';
+    if (window.location.pathname.endsWith('index.html')) {
+      fetchPlaces(token);
+    } else {
+      if (loginButton) loginButton.style.display = 'block';
     }
   }
-  return null; // si cookie non trouvé
-}
 
-function displayPlaces(places) {
-  const placesList = document.getElementById('places-list');
-  placesList.innerHTML = '';  // Vide la liste avant de la remplir
-
-  if (!places || places.length === 0) {
-      placesList.innerHTML = '<p>No places to display.</p>';
-      return;
+  if (logoutButton) {
+    logoutButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      const confirmLogout = confirm("Are you sure you want to log out?");
+      if (confirmLogout) {
+        document.cookie = 'token=; Max-Age=0; path=/';
+        window.location.href = 'login.html';
   }
+});
+  }
+  // 💸 Filtre par prix
+  const priceFilter = document.getElementById('price-filter');
+   if (priceFilter) {
+    priceFilter.addEventListener('change', (event) => {
+      const maxPrice = event.target.value;
+      const places = document.querySelectorAll('#places-list .place-item');
 
-  places.forEach(place => {
-    const placeCard = document.createElement('div');
-    placeCard.classList.add('place-card');
-    placeCard.dataset.price = place.price;
+      places.forEach(place => {
+        const price = parseFloat(place.dataset.price);
+        if (maxPrice === 'all' || price <= parseFloat(maxPrice)) {
+          place.style.display = 'block';
+        } else {
+          place.style.display = 'none';
+        }
+      });
+    });
+  }
+});
 
-    placeCard.innerHTML = `
-      <h2>${place.title}</h2>
-      <p>Price per night: $${place.price}</p>
-      <p>${place.description}</p>
-      <button class="details-button">View Details</button>
-    `;
 
-    placesList.appendChild(placeCard);
-  });
-}
 
+// 📦 Récupération des places depuis l'API
 async function fetchPlaces(token) {
   try {
     const response = await fetch('http://localhost:5000/api/v1/places/', {
-      method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + token },
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+    if (response.ok) {
+      const places = await response.json();
+      displayPlaces(places);
+    } else {
+      console.error('Erreur API places:', response.statusText);
     }
-
-    const data = await response.json();
-
-    // 💡 ajoute ceci :
-    allPlaces = data;
-
-    displayPlaces(allPlaces);
   } catch (error) {
-    console.log('Erreur lors de la récupération des places:', error);
+    console.error('Erreur fetch places:', error);
   }
 }
-function setupPriceFilter() {
-    const priceFilter = document.getElementById('price-filter');
 
-    priceFilter.addEventListener('change', () => {
-        const maxPrice = priceFilter.value ? parseFloat(priceFilter.value) : null;
+// 🧱 Affichage dynamique des places
+function displayPlaces(places) {
+  const placesList = document.getElementById('places-list');
+  if (!placesList) return;
 
-        if (!maxPrice) {
-            // Affiche toutes les places si "All" ou valeur vide sélectionnée
-            displayPlaces(allPlaces);
-            return;
-        }
+  placesList.innerHTML = '';
 
-        // Filtre la liste globale et affiche uniquement les places <= maxPrice
-        const filteredPlaces = allPlaces.filter(place => place.price <= maxPrice);
-        displayPlaces(filteredPlaces);
-    });
+  places.forEach(place => {
+    const placeDiv = document.createElement('div');
+    placeDiv.classList.add('place-item');
+    placeDiv.dataset.price = place.price;
+
+    placeDiv.innerHTML = `
+      <h3>${place.title}</h3>
+      <p>${place.description}</p>
+      <p><strong>Price:</strong> $${place.price}</p>
+    `;
+
+    placesList.appendChild(placeDiv);
+  });
 }
-document.addEventListener('DOMContentLoaded', () => {
-  checkAuthentication();
-  setupPriceFilter(); // 💡 ajoute ça
-});

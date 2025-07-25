@@ -1,42 +1,132 @@
-/*
-  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks.
-  You'll probably need to override some of theese styles.
-*/
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
+/* Global */
 
 body {
-    background-color: #f9f9f9;
-    color: #333;
-	font-family: 'Arial', sans-serif;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
+/* Header / Navigation */
+
+header nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #4a90e2;
+  padding: 10px 20px;
 }
 
-nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 1rem;
+header nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: bold;
 }
 
-main {
-    padding: 2rem;
+.logo {
+  height: 40px;
 }
-.place-card,
+
+/* Footer */
+
+footer {
+  text-align: center;
+  padding: 15px 0;
+  background-color: #222;
+  color: white;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Place Card */
+
+.place-card {
+  background-color: white;
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.place-card h3 {
+  margin-bottom: 5px;
+}
+
+.details-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.details-button:hover {
+  background-color: #357ABD;
+}
+
+/* Place Details */
+
+.place-details {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.place-info {
+  margin-top: 10px;
+}
+
+/* Review Card */
+
 .review-card {
-	margin: 20px;
-	padding: 10px;
-	border: 1px solid #ddd;
-	border-radius: 10px;
-	background-color: #fff;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: #fafafa;
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+/* Add Review Form */
+
+.add-review {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.add-review form label {
+  display: block;
+  margin-top: 10px;
+}
+
+.add-review form textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 5px;
+  padding: 7px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.add-review form button {
+  margin-top: 10px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-review form button:hover {
+  background-color: #357ABD;
 }
