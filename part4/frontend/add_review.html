@@ -1,40 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Review</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Review</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-	<header>
-        <nav>
-			<a href="index.html">Home</a>
-			<img src="images/logo.png" alt="App logo" class="logo">
-            <a href="login.html" id="login-button">Login</a>
-			<a href="place.html">Place Details</a>
-			<a href="add_review.html">Add Review</a>
-        </nav>
-    </header>
-    <main>
-        <!-- Add something to idfentify the place you're reviewing -->
-        <form id="review-form">
-            <h2>Add a Review</h2>
-            <label for="review">Your Review:</label>
-            <textarea id="review" name="review" required></textarea>
-            <label for="rating">Rating:</label>
-            <select id="rating" name="rating" required>
-                <!-- Options for rating -->
-				<option value="" disabled selected>-- Choisir une option --</option>
-  				<option value="a">Option A</option>
-  				<option value="b">Option B</option>
-            </select>
-            <button type="submit">Submit Review</button>
-        </form>
-    </main>
-    <script src="scripts.js"></script>
-	<footer>
-		<p>All rights reserved</p>
-	</footer>
+  <header>
+    <nav>
+      <a href="index.html">Home</a>
+      <img src="images/logo.png" alt="App logo" class="logo" />
+      <a href="login.html" class="login-button" id="login-button">Login</a>
+	  <a href="#" class="logout-button" id="logout-button" style="display: none;">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="add-review">
+      <form id="review-form">
+        <h2>Add Review</h2>
+        <label for="review-text">Review:</label>
+        <textarea id="review-text" name="review" required></textarea>
+		<label for="review-rating">Rating (1–5):</label>
+		<select id="review-rating" name="rating" required>
+			<option value="">-- Select a rating --</option>
+			<option value="1">1 - Very bad</option>
+			<option value="2">2 - Bad</option>
+			<option value="3">3 - Average</option>
+			<option value="4">4 - Good</option>
+			<option value="5">5 - Excellent</option>
+		</select>
+        <button type="submit">Submit</button>
+      </form>
+
+	  <h3>Existing Reviews</h3>
+		<ul id="review-list" class="review-list"></ul>
+      <div id="message" style="margin-top:10px;"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>All rights reserved</p>
+  </footer>
+
+  <script src="js/scripts.js" defer></script>
 </body>
 </html>
