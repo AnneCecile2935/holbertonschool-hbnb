@@ -147,37 +147,47 @@ class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
             404 if the place does not exist.
         """
         current_user = get_jwt_identity()
-        # Récupère l'identité de l'utilisateur connecté via le token JWT
-        user_id = current_user['id']
-        review_data = api.payload      # Récup les datas envoyées par le client
-        # Extrait l'ID du lieu depuis les données
-        place_id = (
-            review_data.get('place_id')
-            if isinstance(review_data, dict)
-            else review_data
-        )
-        # Vérifie si le lieu existe dans la base
+        if isinstance(current_user, dict) and 'id' in current_user:
+            user_id = current_user['id']
+        else:
+            user_id = current_user
+
+        review_data = api.payload
+        print("Payload reçu:", review_data)
+        print("user_id depuis token:", user_id)
+        print("place_id:", review_data.get('place_id'))
+
+        place_id = review_data.get('place_id')
+        if not place_id:
+            return {'error': 'place_id is required'}, 400
+
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'place not found'}, 404
-        # L'utilisateur ne peut pas commenter son propre lieu
+
         if place.owner == user_id:
             return {'error': 'You cannot review your own place'}, 400
-        # Récupère les avis existants pour ce lieu
+
         existing_reviews = facade.get_reviews_by_place(place_id)
-        # Vérifie si l'utilisateur a déjà laissé un avis pour ce lieu
         if any(review.user_id == user_id for review in existing_reviews):
             return {'error': 'You have already reviewed this place'}, 400
-        # Si tout est valide, crée un nouvel avis avec les donnéesfournies
+
+        # Force user_id from token, ignore user_id from client
+        review_data['user_id'] = user_id
+
+        rating = review_data.get('rating')
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            return {'error': 'Rating must be an integer between 1 and 5'}, 400
+
         new_review = facade.create_review(review_data)
-        # Retourne les infos de l'avis créé sous forme de JSON
+
         return {
             'id': new_review.id,
             'place_id': new_review.place_id,
             'user_id': new_review.user_id,
             'text': new_review.text,
             'rating': new_review.rating
-            }, 201                              # Création OK
+        }, 201
 
 # ----------------------------------------- Route POST & GET : /api/v1/reviews/
     @api.response(200, 'List of reviews retrieved successfully')

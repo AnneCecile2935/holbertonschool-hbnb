@@ -182,10 +182,17 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             # Construction de la liste des reviews
             reviews = []
             for review in place.reviews:
-                review_data = {}
-                review_data["id"] = review.id
-                review_data["rating"] = review.rating
-                review_data["text"] = review.text
+                review_data = {
+                    "id": review.id,
+                    "rating": review.rating,
+                    "text": review.text,
+                    "user": {
+                        "id": review.user.id,
+                        "first_name": review.user.first_name,
+                        "last_name": review.user.last_name,
+                        "email": review.user.email
+        }
+    }
                 reviews.append(review_data)
 
             # Construction de la place complète
@@ -223,6 +230,7 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
             JSON with place and owner details and HTTP 200 on success,
             or error message with HTTP 404 if not found.
         """
+
         place = facade.get_place(place_id)        # Récupère l'id de la place
         if not place:                             # Si pas trouvé = Erreur
             return {'error': 'Place not found'}, 404
@@ -238,10 +246,16 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
             amenities.append(amenity_data)
         reviews = []
         for review in place.reviews:
-            review_data = {}
-            review_data["id"] = review.id
-            review_data["rating"] = review.rating
-            review_data["comment"] = review.text
+            user = facade.get_user(review.user_id)
+            review_data = {
+                "id": review.id,
+                "user": {
+                    "first_name": user.first_name if user else "Unknown",
+                    "last_name": user.last_name if user else ""
+                },
+                "rating": review.rating,
+                "text": review.text
+            }
             reviews.append(review_data)
 
         return {
