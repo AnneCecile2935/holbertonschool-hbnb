@@ -19,11 +19,13 @@ Models:
 """
 
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
 from app.api.v1.users import user_model
 from app.api.v1.amenities import amenity_model
 from app.utils.decorators import handle_errors
+from flask import request
+import logging
 
 api = Namespace(  # Namespace permet de regrouper les routes pr une même entité
     'reviews',    # Le nom du Namespace
@@ -40,7 +42,7 @@ review_model = api.model('Review', {               # "model" permet de déclarer
             description='ID of the place the review is about'   # Description
         ),
         'user_id': fields.String(                  # "fields.String" = string
-            required=True,                         # Champ obligatoire
+            required=False,                         # Champ obligatoire
             description='ID of the user who made the review'    # Description
         ),
         'text': fields.String(                     # "fields.String" = string
@@ -122,7 +124,7 @@ class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
     @api.expect(review_model, validate=True)        # Vérifie avec review_model
     @api.response(201, 'Review successfully created')               # OK
     @api.response(400, 'Invalid input data')                        # NOK
-    @api.response(400, 'User or Place not found')                   # NOK
+    @api.doc(responses={400: 'Bad Request - Mauvais format JSON ou champs manquant'})                   # NOK
     @handle_errors
     @jwt_required()
 # ---------------------------------- Fonction pour enregister un nouveau review
@@ -146,16 +148,13 @@ class ReviewList(Resource):     # "Resource" = methodes requête (POST, GET, ..)
             400 if user is not allowed to review,
             404 if the place does not exist.
         """
-        current_user = get_jwt_identity()
-        if isinstance(current_user, dict) and 'id' in current_user:
-            user_id = current_user['id']
-        else:
-            user_id = current_user
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
 
+        
+        # Vérifie ici types et valeurs
         review_data = api.payload
-        print("Payload reçu:", review_data)
-        print("user_id depuis token:", user_id)
-        print("place_id:", review_data.get('place_id'))
 
         place_id = review_data.get('place_id')
         if not place_id:
