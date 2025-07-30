@@ -19,6 +19,8 @@
   <main>
     <section id="place-details" class="place-details"></section>
     <section id="add-review-section" style="display:none;">
+		<h3>Existing Reviews</h3>
+		<ul id="review-list" class="review-list"></ul>
 		<form id="review-form">
 			<h2>Add Review</h2>
 			<label for="review-text">Review:</label>
@@ -35,8 +37,6 @@
 			</select>
 			<button type="submit">Submit</button>
 		</form>
-		<h3>Existing Reviews</h3>
-		<ul id="review-list" class="review-list"></ul>
 		<div id="message" style="margin-top:10px;"></div>
 	</section>
   </main>
@@ -45,6 +45,8 @@
     <p>All rights reserved</p>
   </footer>
 
-  <script src="js/scripts.js" defer></script>
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/place.js"></script>
+  <script type="module" src="js/utils.js"></script>
 </body>
 </html>
