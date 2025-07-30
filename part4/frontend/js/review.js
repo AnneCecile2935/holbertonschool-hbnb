@@ -66,7 +66,8 @@ export async function submitReview(event) {
     document.getElementById('review-form').reset();
 
   } catch (error) {
-    alert('Error submitting review.');
-  	console.error('Détail de l\'erreur:', error.message || error);
+	console.error('Détail de l\'erreur:', error.message || error);
+    throw error;
+
   }
 }

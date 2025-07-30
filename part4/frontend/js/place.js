@@ -25,7 +25,7 @@ export async function fetchPlaceDetails(token, placeId) {
 }
 
 // Fonction pour afficher les détails du lieu dans la page HTML
-function displayPlaceDetails(place) {
+export function displayPlaceDetails(place) {
   const container = document.getElementById('place-details');  // Sélecteur de l'élément conteneur des détails
   container.innerHTML = `
     <h2>${place.title}</h2>
@@ -52,13 +52,9 @@ function displayPlaceDetails(place) {
 
 // Événement déclenché quand le DOM est entièrement chargé
 document.addEventListener('DOMContentLoaded', async () => {
+  if (!window.location.pathname.endsWith('place.html')) return;
   const placeId = getPlaceIdFromURL();  // Récupérer l'id du lieu depuis l'URL
   const token = getCookie('token');  // Récupérer le token JWT depuis les cookies
-
-  if (!placeId) {
-    alert('No place specified');  // Alerte si aucun id n’est présent dans l’URL
-    return;
-  }
 
   // Gestion affichage du formulaire d'ajout de review selon si utilisateur est connecté
   const addReviewSection = document.getElementById('add-review-section');

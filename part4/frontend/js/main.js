@@ -1,39 +1,65 @@
 // Importation des fonctions nécessaires depuis les différents modules
-import { getToken, deleteToken, isAuthenticated } from './auth.js';  // Gestion de l'authentification (token)
+import { getToken, updateAuthButtons, setupLogoutButton } from './auth.js';  // Gestion de l'authentification (token)
 import { fetchPlaces } from './index.js';  // Fonction pour récupérer et afficher la liste des places
 import { getPlaceIdFromURL } from './utils.js';  // Extraction de l'ID d'une place depuis l'URL
-import { fetchPlaceDetails } from './place.js';  // Fonction pour récupérer et afficher les détails d'une place
+import { fetchPlaceDetails, displayPlaceDetails } from './place.js';  // Fonction pour récupérer et afficher les détails d'une place
 import { setupLoginForm } from './login.js';
-import { updateAuthButtons, setupLogoutButton } from './auth.js';
-import { setupReviewForm } from './review.js';
+import { setupReviewForm, submitReview } from './review.js';
 // Attendre que le DOM soit complètement chargé avant d'exécuter le script
 document.addEventListener('DOMContentLoaded', () => {
   // Récupération du chemin actuel de la page (ex: "/index.html")
+  const path = window.location.pathname;
   updateAuthButtons();
   setupLogoutButton();
-  const path = window.location.pathname;
-
 
   // Si on est sur la page index.html (liste des places)
   if (path === '/' || path.endsWith('index.html')) {
-    const token = getToken();  // Récupérer le token d'authentification
-    if (token) fetchPlaces(token);  // Appeler la fonction pour charger et afficher les places avec le token
+    const token = getToken();
+    if (token) fetchPlaces(token);
   }
-
   // Si on est sur la page place.html (détail d'une place)
-  if (path.endsWith('place.html')) {
-    const token = getToken();  // Récupérer le token d'authentification (peut être null si pas connecté)
-    const placeId = getPlaceIdFromURL();  // Extraire l'ID de la place depuis les paramètres URL
-    if (placeId) fetchPlaceDetails(token, placeId);  // Charger les détails de la place (avec token si connecté)
-  }
+  else if (path.endsWith('place.html')) {
+    const token = getToken();
+    const placeId = getPlaceIdFromURL();
 
+    if (!placeId) {
+      alert('No place specified');
+      return;
+    }
+
+    const addReviewSection = document.getElementById('add-review-section');
+    if (addReviewSection) {
+      addReviewSection.style.display = token ? 'block' : 'none';
+    }
+
+    if (placeId) {
+      fetchPlaceDetails(token, placeId).then(place => {
+        if (place) displayPlaceDetails(place);
+      });
+    }
+
+    if (token) {
+      const form = document.getElementById('review-form');
+      if (form) {
+        form.addEventListener('submit', async (event) => {
+          try {
+            await submitReview(event);
+            const updatedPlace = await fetchPlaceDetails(token, placeId);
+            if (updatedPlace) displayPlaceDetails(updatedPlace);
+          } catch (error) {
+            console.error('Erreur lors de la soumission de la review ou du rechargement :', error);
+            alert('Une erreur est survenue lors de l\'envoi de votre avis.');
+          }
+        });
+      }
+    }
+  }
   // Si on est sur la page add_review.html (formulaire d'ajout d'avis)
-  if (path.endsWith('add_review.html')) {
-    setupReviewForm();  // Initialiser la gestion du formulaire d'ajout d'avis (validation, envoi, etc.)
+  else if (path.endsWith('add_review.html')) {
+    setupReviewForm();
   }
-
   // Si on est sur la page login.html (formulaire de connexion)
-  if (path.endsWith('login.html')) {
-    setupLoginForm();  // Initialiser la gestion du formulaire de connexion (non défini dans ce snippet)
+  else if (path.endsWith('login.html')) {
+    setupLoginForm();
   }
 });
