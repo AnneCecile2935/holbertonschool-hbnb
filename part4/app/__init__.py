@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restx import Api
 from config import DevelopmentConfig #import propre
 from app.extensions import db, bcrypt, jwt
+from flask_restx.errors import ValidationError
 from flask_cors import CORS
 #-------------------------------------------------------------- Import namespace
 
@@ -39,6 +40,21 @@ def create_app(config_class="config.DevelopmentConfig"): #devconfig sera automat
         authorizations=authorizations,
         security='Bearer Auth'
     )
+
+     # --- Ajout des handlers d'erreur ici ---
+    @api.errorhandler(ValidationError)
+    def handle_validation_error(error):
+        return {
+            'message': 'Validation error',
+            'details': str(error)
+        }, 400
+
+    @api.errorhandler
+    def default_error_handler(error):
+        return {
+            'message': 'Unhandled error',
+            'details': str(error)
+        }, getattr(error, 'code', 500)
 #------------------------------------------------------------------- App et Docu
 
     # Ajout du namespace de l'utilisateur à l'API principale
