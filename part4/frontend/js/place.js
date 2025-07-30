@@ -39,15 +39,14 @@ export function displayPlaceDetails(place) {
   const reviewList = document.getElementById('review-list');
   // Si des reviews existent, les afficher, sinon message "No reviews yet."
   reviewList.innerHTML = place.reviews?.length
-    ? place.reviews.map(r => `<li><strong>${r.user?.first_name || "Unknown"}:</strong> ${r.text} (${r.rating}/5)</li>`).join('')
-    : '<li>No reviews yet.</li>';
-
-  // Création dynamique d’un bouton "Add Review" qui redirige vers la page d’ajout de review avec l’id du lieu
-  const btn = document.createElement('a');
-  btn.href = `add_review.html?id=${place.id}`;
-  btn.textContent = 'Add Review';
-  btn.classList.add('add-review-button');
-  container.appendChild(btn);  // Ajout du bouton à la page
+    ? place.reviews.map(r => `
+      <li>
+        <strong>${r.user?.first_name || "Unknown"}:</strong>
+        <div class="star-rating" style="--rating: ${r.rating};"></div>
+        <p>${r.text}</p>
+      </li>
+    `).join('')
+  : '<li>No reviews yet.</li>';
 }
 
 // Événement déclenché quand le DOM est entièrement chargé

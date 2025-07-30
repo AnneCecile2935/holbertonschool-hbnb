@@ -13,17 +13,18 @@ export async function fetchPlaces(token) {
     // Vérifie que la réponse est OK (status HTTP 200–299)
     if (response.ok) {
       // Parse la réponse JSON contenant la liste des lieux
-      const places = await response.json();
+      return await response.json();
 
       // Appelle la fonction d’affichage des lieux dans la page
-      displayPlaces(places);
     } else {
       // En cas d’erreur côté serveur, affiche un message d’erreur dans la console
       console.error('Erreur API places:', response.statusText);
+	  return [];
     }
   } catch (error) {
     // En cas d’erreur réseau ou autre problème, affiche un message d’erreur dans la console
     console.error('Erreur fetch places:', error);
+	return [];
   }
 }
 

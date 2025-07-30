@@ -1,6 +1,6 @@
 // Importation des fonctions nécessaires depuis les différents modules
 import { getToken, updateAuthButtons, setupLogoutButton } from './auth.js';  // Gestion de l'authentification (token)
-import { fetchPlaces } from './index.js';  // Fonction pour récupérer et afficher la liste des places
+import { fetchPlaces, displayPlaces } from './index.js';  // Fonction pour récupérer et afficher la liste des places
 import { getPlaceIdFromURL } from './utils.js';  // Extraction de l'ID d'une place depuis l'URL
 import { fetchPlaceDetails, displayPlaceDetails } from './place.js';  // Fonction pour récupérer et afficher les détails d'une place
 import { setupLoginForm } from './login.js';
@@ -15,7 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Si on est sur la page index.html (liste des places)
   if (path === '/' || path.endsWith('index.html')) {
     const token = getToken();
-    if (token) fetchPlaces(token);
+    if (token) {
+  fetchPlaces(token).then(places => {
+    const priceFilter = document.getElementById('price-filter');
+
+    // Affichage initial de tous les lieux
+    displayPlaces(places);
+
+    // Filtrage dynamique
+    if (priceFilter) {
+      priceFilter.addEventListener('change', () => {
+        const selected = priceFilter.value;
+
+        const filteredPlaces = selected === 'all'
+          ? places
+          : places.filter(p => p.price <= parseInt(selected));
+
+        displayPlaces(filteredPlaces);
+      });
+    }
+  });
+}
   }
   // Si on est sur la page place.html (détail d'une place)
   else if (path.endsWith('place.html')) {

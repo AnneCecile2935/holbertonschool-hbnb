@@ -72,11 +72,35 @@ footer {
 /* Place Details */
 
 .place-details {
-  margin: 20px;
-  padding: 10px;
+  background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: white;
+  border-radius: 12px;
+  padding: 20px 25px;
+  margin: 20px auto;
+  max-width: 700px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.place-details h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.place-details p,
+.place-details ul {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.place-details ul {
+  padding-left: 20px;
+}
+
+.place-details ul li {
+  margin-bottom: 6px;
 }
 
 .place-info {
@@ -223,4 +247,169 @@ footer {
 
 #review-form button:hover {
   background-color: #0056b3;
+}
+#login-form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+#login-form label {
+  font-weight: 600;
+  color: #444;
+  margin-top: 15px;
+  display: block;
+}
+
+#login-form input {
+  width: 100%;
+  box-sizing: border-box;  /* inclut padding/border dans la largeur */
+  padding: 10px 12px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  display: block;
+  transition: border-color 0.3s ease;
+}
+
+#login-form input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  background-color: #fff;
+}
+
+#login-form button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+#login-form button:hover {
+  background-color: #357ABD;
+}
+
+#error-message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #e74c3c;
+  text-align: center;
+}
+#price-filter {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+#price-filter:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+#places-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Chaque "carte" de place */
+.place-item {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.place-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.place-item h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.place-item p {
+  color: #555;
+  margin: 0.5rem 0;
+}
+
+.details-button {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.details-button:hover {
+  background-color: #2980b9;
+}
+
+/* Exemple style pour une card de place (ajoute ce style si tu utilises .place-card) */
+.place-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  padding: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.place-card:hover {
+  box-shadow: 0 8px 14px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+}
+.loader {
+  text-align: center;
+  font-size: 18px;
+  color: #4a90e2;
+  margin: 20px 0;
+}
+.star-rating {
+  --star-size: 20px;
+  --star-color: #ccc;      /* gris clair */
+  --star-background: #fc0; /* jaune */
+
+  font-size: var(--star-size);
+  font-family: Times; /* Pour que le caractère ★ soit joli */
+  line-height: 1;
+  display: inline-block;
+  position: relative;
+  color: var(--star-color);
+  letter-spacing: 3px; /* espace entre étoiles */
+  user-select: none;
+}
+
+.star-rating::before {
+  content: "★★★★★";       /* 5 étoiles grises */
+  letter-spacing: 3px;
+}
+
+.star-rating::after {
+  content: "★★★★★";       /* 5 étoiles jaunes */
+  letter-spacing: 3px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--rating) / 5 * 100%);
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--star-background);
 }
