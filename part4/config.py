@@ -9,6 +9,7 @@ Environment variable:
 - SECRET_KEY: Overrides the default secret key if set.
 """
 import os
+from datetime import timedelta
 
 
 class Config:
@@ -20,7 +21,12 @@ class Config:
     - DEBUG: Set to False by default.
     """
     SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+    JWT_SECRET_KEY = SECRET_KEY
     DEBUG = False
+
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=60)  # token d'accès expire au bout de 15 minutes
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=90)    # token de refresh expire au bout de 30 jours
+
 
 
 class DevelopmentConfig(Config):
