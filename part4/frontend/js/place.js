@@ -27,7 +27,9 @@ export async function fetchPlaceDetails(token, placeId) {
 // Fonction pour afficher les détails du lieu dans la page HTML
 export function displayPlaceDetails(place) {
   const container = document.getElementById('place-details');  // Sélecteur de l'élément conteneur des détails
+  const imageUrl = `images/${place.id}.jpg`;
   container.innerHTML = `
+    <img src="${imageUrl}" alt="${place.title}" class="place-detail-image">
     <h2>${place.title}</h2>
     <p>${place.description}</p>
     <p><strong>Price:</strong> $${place.price}</p>

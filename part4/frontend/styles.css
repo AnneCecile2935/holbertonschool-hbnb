@@ -59,6 +59,8 @@ footer {
 .place-card,
 .review-card,
 .add-review {
+  display: flex;
+  flex-direction: column;
   background-color: white;
   margin: 20px;
   padding: 10px;
@@ -66,6 +68,7 @@ footer {
   border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
 }
 
 .place-card:hover,
@@ -75,20 +78,24 @@ footer {
 }
 
 .place-card h3 {
-  margin-bottom: 5px;
+  margin-bottom: 0;
 }
 
 /* Details Button */
 .details-button {
+  margin-top: auto; /* Pousse le bouton vers le bas */
   background-color: #4a90e2;
   color: white;
   border: none;
   padding: 7px 15px;
   border-radius: 5px;
   cursor: pointer;
-  display: inline-block;
-  margin-top: 0.75rem;
+  display: block;
+  text-align: center;
   text-decoration: none;
+}
+.place-content {
+	flex: 1;
 }
 
 .details-button:hover {
@@ -104,6 +111,7 @@ footer {
   margin: 20px auto;
   max-width: 700px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
 .place-details h2 {
@@ -266,13 +274,17 @@ footer {
 }
 
 .place-item {
-  background: #fff;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+  max-width: 300px;
+  height: 100%; /* Assurez-vous que le conteneur prend toute la hauteur disponible */
+  box-sizing: border-box; /* Inclut le padding et la bordure dans la hauteur totale */
 }
+
 
 .place-item h3 {
   margin-top: 0;
@@ -340,16 +352,40 @@ footer {
   color: #4a90e2;
   margin: 20px 0;
 }
-	.hero-image {
-	width: 25%;
-	margin-bottom: 20px;
-	border-radius: 12px;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-	}
+.hero-image {
+width: 100%;
+margin-bottom: 30px;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
 
-	.hero-image img {
-	width: 50%;
-	height: auto;
-	object-fit: contain;
-	display: block;
-	}
+.hero-image img {
+width: 100%;
+height: 200px;
+object-fit: cover;
+display: inline-block;
+}
+.place-item {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 16px;
+	margin: 16px;
+	max-width: 300px;
+	display: inline-block;
+}
+
+.place-image {
+  width: 225px;
+  height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.place-details-image {
+  width: 100%; /* Prend toute la largeur du conteneur parent */
+  height: auto; /* Conserve les proportions de l'image */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 8px; /* Optionnel : ajoute des coins arrondis */
+}
