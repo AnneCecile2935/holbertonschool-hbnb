@@ -310,36 +310,10 @@ footer {
   margin: 0.5rem 0;
 }
 
-/* Star Rating */
-.star-rating {
-  --star-size: 20px;
-  --star-color: #ccc;
-  --star-background: #fc0;
-  font-size: var(--star-size);
-  font-family: Times;
-  line-height: 1;
-  display: inline-block;
-  position: relative;
-  color: var(--star-color);
-  letter-spacing: 3px;
-  user-select: none;
-}
-
-.star-rating::before {
-  content: "★★★★★";
-  letter-spacing: 3px;
-}
-
-.star-rating::after {
-  content: "★★★★★";
-  letter-spacing: 3px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: calc(var(--rating) / 5 * 100%);
-  overflow: hidden;
-  white-space: nowrap;
-  color: var(--star-background);
+.review-rating {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #333;
 }
 
 /* Auth message */

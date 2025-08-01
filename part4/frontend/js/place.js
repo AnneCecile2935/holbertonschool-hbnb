@@ -59,7 +59,7 @@ export function displayPlaceDetails(place) {
     ? place.reviews.map(r => `
       <li class="review-card">
         <p class="review-user">${r.user?.first_name || "Anonyme"}</p>
-        <div class="star-rating" style="--rating: ${r.rating}">${r.rating}/5</div>
+         <div class="review-rating">${r.rating}/5</div>
         <p class="review-text">${r.text}</p>
       </li>
     `).join('')
