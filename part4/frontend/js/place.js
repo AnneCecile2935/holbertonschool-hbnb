@@ -1,5 +1,6 @@
 import { getCookie } from './auth.js';
-import { submitReview } from './review.js';
+import { fetchPlaceDetails as fetchPlaceDetailsFromAPI, displayPlaceDetails as showPlace } from './place.js';
+import { submitReview } from './review.js'; // utile seulement si tu veux forcer un refresh après le submit, sinon peut être retiré
 
 // Fonction pour extraire l'ID du lieu depuis l'URL
 function getPlaceIdFromURL() {
@@ -66,7 +67,7 @@ export function displayPlaceDetails(place) {
     : '<li>No review for this place.</li>';
 }
 
-// Événement déclenché quand le DOM est entièrement chargé
+// Initialisation de la page (à faire uniquement si on est sur place.html)
 document.addEventListener('DOMContentLoaded', async () => {
   if (!window.location.pathname.endsWith('place.html')) return;
 
@@ -89,20 +90,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Failed to load place details.');
   }
 
-  if (token) {
-    const form = document.getElementById('review-form');
-    if (form) {
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-          await submitReview(event);
-          const updatedPlace = await fetchPlaceDetails(token, placeId);
-          if (updatedPlace) displayPlaceDetails(updatedPlace);
-        } catch (error) {
-          console.error('Error submitting review or reloading:', error);
-          alert('An error occurred while submitting your review.');
-        }
-      });
-    }
-  }
 });
