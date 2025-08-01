@@ -278,14 +278,14 @@ class HBnBFacade:
         # Vérifie si le user existe
         if not user:
             raise ValueError("User not found")
-
+       
         try:
             # Récupère les données
             review = Review(
-                review_data.get('text'),
-                review_data.get('rating'),
-                place,
-                user
+                text=review_data.get('text'),
+                rating=review_data.get('rating'),
+                place=place,
+                user=user
             )
         except (TypeError, ValueError) as e:
             # Gestion des messages selon l'erreur

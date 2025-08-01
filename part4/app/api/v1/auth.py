@@ -38,7 +38,8 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
-    create_refresh_token
+    create_refresh_token,
+    get_jwt
 )
 from app.services import facade
 
@@ -90,14 +91,10 @@ class Login(Resource):
             return {'error': 'Invalid credentials'}, 401               # Erreur
 
         # Sinon création d'un token lié par l'user.id
-        access_token = create_access_token(identity={
-            'id': str(user.id),
-            'is_admin': user.is_admin
-        })
-        refresh_token = create_refresh_token(identity={
-            'id': str(user.id),
-            'is_admin': user.is_admin
-        })
+        access_token = create_access_token(identity=str(user.id), additional_claims={'is_admin': user.is_admin})
+        refresh_token = create_refresh_token(identity=str(user.id), additional_claims={'is_admin': user.is_admin})
+
+
 
         # Retourne le token
         return {
@@ -126,8 +123,14 @@ class ProtectedResource(Resource):
             HTTP 401 if access token is missing or invalid.
         """
         # Récupère le user.id par sont token
-        current_user = get_jwt_identity()
-        return {'message': f'Hello, user {current_user["id"]}'}, 200
+        user_id = get_jwt_identity()
+        print("User ID from token:", user_id)
+        claims = get_jwt()
+        is_admin = claims.get("is_admin")
+        return {
+            "message": f"Hello user {user_id}",
+            "is_admin": is_admin
+        }, 200
 
 
 @api.route('/refresh')
