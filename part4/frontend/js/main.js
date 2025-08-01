@@ -16,27 +16,45 @@ document.addEventListener('DOMContentLoaded', () => {
   if (path === '/' || path.endsWith('index.html')) {
     const token = getToken();
     if (token) {
-  fetchPlaces(token).then(places => {
-    const priceFilter = document.getElementById('price-filter');
+  	  fetchPlaces(token).then(places => {
+    	const priceFilter = document.getElementById('price-filter');
 
     // Affichage initial de tous les lieux
-    displayPlaces(places);
+    	displayPlaces(places);
 
     // Filtrage dynamique
-    if (priceFilter) {
-      priceFilter.addEventListener('change', () => {
-        const selected = priceFilter.value;
+      if (priceFilter) {
+        priceFilter.addEventListener('change', () => {
+          const selected = priceFilter.value;
+          let filteredPlaces;
 
-        const filteredPlaces = selected === 'all'
-          ? places
-          : places.filter(p => p.price <= parseInt(selected));
+          if (selected === 'all') {
+          filteredPlaces = places;
+          } else {
+          const maxPrice = parseInt(selected);
+          filteredPlaces = places.filter(p => p.price <= maxPrice);
+          }
 
-        displayPlaces(filteredPlaces);
-      });
+          displayPlaces(filteredPlaces);
+        });
+      }
+    });
+} else {
+    const messageDiv = document.getElementById('auth-message');
+    const placesList = document.getElementById('places-list');
+
+    if (messageDiv) {
+      messageDiv.textContent = 'Vous devez être connecté pour accéder à la liste des lieux.';
+      messageDiv.style.color = 'red';
+      messageDiv.style.margin = '10px 0';
+      messageDiv.style.display = 'block';
     }
-  });
-}
+
+    if (placesList) {
+      placesList.style.display = 'none';
+    }
   }
+}
   // Si on est sur la page place.html (détail d'une place)
   else if (path.endsWith('place.html')) {
     const token = getToken();
