@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Place Details</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <nav>
       <a href="index.html">Home</a>
-      <img src="images/logo.png" alt="App logo" class="logo" />
+      <img src="images/logo.png" alt="App logo" class="logo">
       <a href="login.html" class="login-button" id="login-button">Login</a>
 	  <a href="#" class="logout-button" id="logout-button" style="display: none;">Logout</a>
     </nav>
   </header>
 
   <main>
-    <section id="place-details" class="place-details"></section>
+    <section id="place-details" class="place-details">
+		<h2 style="position:absolute; left:-9999px;">Détails du lieu</h2>
+	</section>
+
     <section id="add-review-section" style="display:none;">
 		<h3>Existing Reviews</h3>
 		<ul id="review-list" class="review-list"></ul>
@@ -46,8 +49,6 @@
   <footer>
     <p>All rights reserved</p>
   </footer>
-  <script type="module" src="js/place.js"></script>
   <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/utils.js"></script>
 </body>
 </html>

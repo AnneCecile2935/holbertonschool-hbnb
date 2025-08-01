@@ -77,19 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (token) {
-      const form = document.getElementById('review-form');
-      if (form) {
-        form.addEventListener('submit', async (event) => {
-          try {
-            await submitReview(event);
-            const updatedPlace = await fetchPlaceDetails(token, placeId);
-            if (updatedPlace) displayPlaceDetails(updatedPlace);
-          } catch (error) {
-            console.error('Erreur lors de la soumission de la review ou du rechargement :', error);
-            alert('Une erreur est survenue lors de l\'envoi de votre avis.');
-          }
-        });
-      }
+       setupReviewForm();
     }
   }
   // Si on est sur la page add_review.html (formulaire d'ajout d'avis)
