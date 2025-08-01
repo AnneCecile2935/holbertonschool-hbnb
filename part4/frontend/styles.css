@@ -62,13 +62,12 @@ footer {
   display: flex;
   flex-direction: column;
   background-color: white;
-  margin: 20px;
-  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .place-card:hover,
@@ -79,6 +78,7 @@ footer {
 
 .place-card h3 {
   margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 /* Details Button */
@@ -88,9 +88,10 @@ footer {
   color: white;
   border: none;
   padding: 7px 15px;
-  border-radius: 5px;
+  border-radius: 0 0 8px 8px;
   cursor: pointer;
   display: block;
+  width: auto;
   text-align: center;
   text-decoration: none;
 }
@@ -169,7 +170,8 @@ footer {
 }
 
 /* Add Review Form */
-#review-form {
+#review-form,
+#edit-place-form {
   max-width: 100%;
   margin: 20px auto;
   padding: 20px 25px;
@@ -179,13 +181,15 @@ footer {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-#review-form h2 {
+#review-form h2,
+#edit-place-form h2 {
   margin-bottom: 15px;
   color: #333;
 }
 
 #review-form label,
-#login-form label {
+#login-form label,
+#edit-place-form label {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
@@ -194,6 +198,9 @@ footer {
 
 #review-form textarea,
 #review-form select,
+#edit-place-form textarea,
+#edit-place-form input,
+#edit-place-form, select,
 #login-form input {
   width: 100%;
   padding: 8px 10px;
@@ -207,13 +214,17 @@ footer {
 
 #review-form textarea:focus,
 #review-form select:focus,
-#login-form input:focus {
+#edit-place-form textarea:focus,
+#edit-place-form select:focus,
+#login-form input:focus,
+#edit-place-form input:focus {
   border-color: #007BFF;
   outline: none;
   background-color: #fff;
 }
 
 #review-form button,
+#edit-place-form button,
 #login-form button {
   width: 100%;
   padding: 10px 0;
@@ -228,7 +239,8 @@ footer {
 }
 
 #review-form button:hover,
-#login-form button:hover {
+#login-form button:hover,
+#edit-place-form button:hover {
   background-color: #0056b3;
 }
 
@@ -271,6 +283,7 @@ footer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
+  padding: 20px;
 }
 
 .place-item {
@@ -374,11 +387,14 @@ display: inline-block;
 	max-width: 300px;
 	display: inline-block;
 }
-
+.place-content{
+	flex: 1;
+	padding: 10px;
+}
 .place-image {
-  width: 225px;
+  width: 100%;
   height: 150px;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0 ;
   object-fit: cover;
 }
 .place-details-image {
@@ -388,4 +404,51 @@ display: inline-block;
   margin-left: auto;
   margin-right: auto;
   border-radius: 8px; /* Optionnel : ajoute des coins arrondis */
+}
+.place-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 16px;
+  max-width: 300px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.place-image {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.place-content {
+  flex: 1;
+  padding: 16px 0;
+}
+.place-content p + p {
+	margin-top: 20px;
+}
+
+.details-button {
+  margin-top: auto;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.place-price {
+  margin-top: 20px; /* Ajoutez de l'espace au-dessus du prix */
+}
+.details-button:hover {
+  background-color: #357ABD;
 }
