@@ -1,5 +1,4 @@
 /* Global */
-
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
@@ -8,8 +7,26 @@ body {
   color: #333;
 }
 
-/* Header / Navigation */
+main {
+  padding-bottom: 80px;
+}
 
+h1, h2, h3 {
+  text-align: center;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Header */
 header nav {
   display: flex;
   align-items: center;
@@ -30,32 +47,38 @@ header nav a {
 }
 
 /* Footer */
-
 footer {
   text-align: center;
   padding: 15px 0;
   background-color: #222;
   color: white;
-  position: fixed;
-  bottom: 0;
   width: 100%;
 }
 
 /* Place Card */
-
-.place-card {
+.place-card,
+.review-card,
+.add-review {
   background-color: white;
   margin: 20px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.place-card:hover,
+.place-item:hover {
+  box-shadow: 0 8px 14px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
 }
 
 .place-card h3 {
   margin-bottom: 5px;
 }
 
+/* Details Button */
 .details-button {
   background-color: #4a90e2;
   color: white;
@@ -63,6 +86,9 @@ footer {
   padding: 7px 15px;
   border-radius: 5px;
   cursor: pointer;
+  display: inline-block;
+  margin-top: 0.75rem;
+  text-decoration: none;
 }
 
 .details-button:hover {
@@ -70,7 +96,6 @@ footer {
 }
 
 /* Place Details */
-
 .place-details {
   background-color: #fff;
   border: 1px solid #ddd;
@@ -79,8 +104,6 @@ footer {
   margin: 20px auto;
   max-width: 700px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  font-family: 'Arial', sans-serif;
-  color: #333;
 }
 
 .place-details h2 {
@@ -99,112 +122,62 @@ footer {
   padding-left: 20px;
 }
 
-.place-details ul li {
+.place-details li {
   margin-bottom: 6px;
 }
 
-.place-info {
-  margin-top: 10px;
-}
-
-/* Review Card */
-
-.review-card {
-  background-color: #fafafa;
-  margin: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
+/* Review List */
 .review-list {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 15px 20px;
-  margin-bottom: 15px;
+  margin: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  font-family: Arial, sans-serif;
   transition: box-shadow 0.3s ease;
+  list-style: none;
 }
 
 .review-list:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.review-list .review-text {
+.review-text {
   font-size: 16px;
   color: #333;
   margin-bottom: 12px;
 }
 
-.review-list .review-rating {
+.review-rating {
   font-weight: bold;
   color: #007BFF;
   margin-bottom: 8px;
 }
 
-.review-list .review-user {
+.review-user {
   font-size: 14px;
   color: #777;
   font-style: italic;
 }
 
 /* Add Review Form */
-
-.add-review {
-  margin: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: white;
-}
-
-.add-review form label {
-  display: block;
-  margin-top: 10px;
-}
-
-.add-review form textarea {
-  width: 100%;
-  height: 100px;
-  margin-top: 5px;
-  padding: 7px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.add-review form button {
-  margin-top: 10px;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 7px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.add-review form button:hover {
-  background-color: #357ABD;
-}
 #review-form {
-  max-width: 400px;
+  max-width: 100%;
   margin: 20px auto;
   padding: 20px 25px;
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fafafa;
-  font-family: Arial, sans-serif;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 #review-form h2 {
   margin-bottom: 15px;
   color: #333;
-  text-align: center;
 }
 
-#review-form label {
+#review-form label,
+#login-form label {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
@@ -212,27 +185,28 @@ footer {
 }
 
 #review-form textarea,
-#review-form select {
+#review-form select,
+#login-form input {
   width: 100%;
   padding: 8px 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  resize: vertical;
   font-size: 14px;
-  font-family: inherit;
   box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
 
 #review-form textarea:focus,
-#review-form select:focus {
+#review-form select:focus,
+#login-form input:focus {
   border-color: #007BFF;
   outline: none;
   background-color: #fff;
 }
 
-#review-form button {
+#review-form button,
+#login-form button {
   width: 100%;
   padding: 10px 0;
   background-color: #007BFF;
@@ -245,56 +219,16 @@ footer {
   transition: background-color 0.25s ease;
 }
 
-#review-form button:hover {
+#review-form button:hover,
+#login-form button:hover {
   background-color: #0056b3;
 }
+
+/* Login Form */
 #login-form h2 {
   margin-bottom: 20px;
   text-align: center;
   color: #333;
-}
-
-#login-form label {
-  font-weight: 600;
-  color: #444;
-  margin-top: 15px;
-  display: block;
-}
-
-#login-form input {
-  width: 100%;
-  box-sizing: border-box;  /* inclut padding/border dans la largeur */
-  padding: 10px 12px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-  display: block;
-  transition: border-color 0.3s ease;
-}
-
-#login-form input:focus {
-  border-color: #4a90e2;
-  outline: none;
-  background-color: #fff;
-}
-
-#login-form button {
-  width: 100%;
-  margin-top: 25px;
-  padding: 12px;
-  background-color: #4a90e2;
-  color: white;
-  font-weight: 700;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-#login-form button:hover {
-  background-color: #357ABD;
 }
 
 #error-message {
@@ -303,26 +237,34 @@ footer {
   color: #e74c3c;
   text-align: center;
 }
+
+/* Filter */
 #price-filter {
   padding: 6px 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
   font-size: 16px;
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  text-align: center;
 }
 
 #price-filter:focus {
   border-color: #4a90e2;
   outline: none;
 }
+
+.filter-container {
+  text-align: center;
+  margin: 20px auto;
+}
+
+/* Places Grid */
 #places-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
 }
 
-/* Chaque "carte" de place */
 .place-item {
   background: #fff;
   border: 1px solid #ccc;
@@ -330,11 +272,6 @@ footer {
   padding: 1rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
-}
-
-.place-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .place-item h3 {
@@ -348,62 +285,28 @@ footer {
   margin: 0.5rem 0;
 }
 
-.details-button {
-  display: inline-block;
-  margin-top: 0.75rem;
-  padding: 0.5rem 1rem;
-  background-color: #3498db;
-  color: white;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.details-button:hover {
-  background-color: #2980b9;
-}
-
-/* Exemple style pour une card de place (ajoute ce style si tu utilises .place-card) */
-.place-card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  padding: 15px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.place-card:hover {
-  box-shadow: 0 8px 14px rgba(0,0,0,0.15);
-  transform: translateY(-5px);
-}
-.loader {
-  text-align: center;
-  font-size: 18px;
-  color: #4a90e2;
-  margin: 20px 0;
-}
+/* Star Rating */
 .star-rating {
   --star-size: 20px;
-  --star-color: #ccc;      /* gris clair */
-  --star-background: #fc0; /* jaune */
-
+  --star-color: #ccc;
+  --star-background: #fc0;
   font-size: var(--star-size);
-  font-family: Times; /* Pour que le caractère ★ soit joli */
+  font-family: Times;
   line-height: 1;
   display: inline-block;
   position: relative;
   color: var(--star-color);
-  letter-spacing: 3px; /* espace entre étoiles */
+  letter-spacing: 3px;
   user-select: none;
 }
 
 .star-rating::before {
-  content: "★★★★★";       /* 5 étoiles grises */
+  content: "★★★★★";
   letter-spacing: 3px;
 }
 
 .star-rating::after {
-  content: "★★★★★";       /* 5 étoiles jaunes */
+  content: "★★★★★";
   letter-spacing: 3px;
   position: absolute;
   left: 0;
@@ -413,3 +316,40 @@ footer {
   white-space: nowrap;
   color: var(--star-background);
 }
+
+/* Auth message */
+#auth-message {
+  font-weight: bold;
+  margin: 1em 0;
+}
+
+/* Add Review Container */
+.add-review-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fafafa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Loader */
+.loader {
+  text-align: center;
+  font-size: 18px;
+  color: #4a90e2;
+  margin: 20px 0;
+}
+	.hero-image {
+	width: 25%;
+	margin-bottom: 20px;
+	border-radius: 12px;
+	box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+	}
+
+	.hero-image img {
+	width: 50%;
+	height: auto;
+	object-fit: contain;
+	display: block;
+	}
