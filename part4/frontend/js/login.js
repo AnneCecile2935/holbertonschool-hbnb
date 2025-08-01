@@ -18,8 +18,24 @@ export function setupLoginForm() {
 
     // Récupération des valeurs saisies dans les champs email et mot de passe
     // .trim() enlève les espaces avant et après dans l'email
-    const email = document.getElementById('email')?.value.trim();
-    const password = document.getElementById('password')?.value;
+    let email;
+
+    const emailInput = document.getElementById('email');
+
+    if (emailInput !== null) {
+      email = emailInput.value.trim();
+    } else {
+      email = undefined;
+    }
+    let password;
+
+    const passwordInput = document.getElementById('password');
+
+    if (passwordInput !== null) {
+      password = passwordInput.value;
+    } else {
+      password = undefined;
+    }
 
     // Vérification simple que les deux champs sont remplis
     if (!email || !password) {
