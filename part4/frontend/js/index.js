@@ -48,13 +48,16 @@ export function displayPlaces(places) {
     placeDiv.classList.add('place-item');
     // Ajoute un attribut data-price avec le prix, utile pour filtrer ou trier
     placeDiv.dataset.price = place.price;
-
+    const imageUrl = `images/${place.id}.jpg`;
     // Remplit le contenu HTML de ce div avec les infos du lieu
     placeDiv.innerHTML = `
+      <img src="${imageUrl}" alt="{place.title}" class="place-image">
+      <div class="place-content">
       <h3>${place.title}</h3>
       <p>${place.description}</p>
-      <p><strong>Price:</strong> $${place.price}</p>
-      <a href="place.html?id=${place.id}" class="details-button">View Details</a>
+      <p class="place-price"><strong>Prix / nuit :</strong> ${place.price}€</p>
+      </div>
+      <a href="place.html?id=${place.id}" class="details-button">Voir Détails</a>
     `;
 
     // Ajoute ce div dans la liste des lieux dans la page

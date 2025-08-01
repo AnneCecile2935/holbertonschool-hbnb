@@ -15,8 +15,9 @@ Models:
 Error handling returns appropriate HTTP status codes and messages.
 """
 
-
+import logging
 from flask_restx import Namespace, Resource, fields
+from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 from app.api.v1.users import user_place_model
@@ -115,9 +116,14 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
             or error message with HTTP 400/403 on failure.
         """
         # Récupère le token du user courant
+
         current_user = get_jwt_identity()
+        logging.info(f"Current user: {current_user}")
         # Récupère les données client
         place_data = api.payload
+        logging.info(f"Received place data with api.payload: {place_data}")
+        place_data_json = request.get_json(force=True)
+        logging.info(f"Received place data with request.get_json: {place_data_json}")
 
         # Vérifie si l'attribut 'owner' est conforme ou vide
         if not place_data.get("owner"):
@@ -125,16 +131,18 @@ class PlaceList(Resource):             # Récupération des méthodes par Resour
 
         # Récupère le user par l'id passé dans owner
         owner = facade.get_user(place_data["owner"])
+        logging.info(f"Owner: {owner}")
 
         # Vérifie si le user existe
         if not owner:
             return {'error': 'Owner user not found'}, 400
         # Vérifie si le user courant est le owner
-        elif place_data["owner"] != current_user["id"]:
+        elif place_data["owner"] != current_user:
             return {'error': 'Unauthorized action'}, 403
 
         # Si tout est OK création d'une nouvelle place
         new_place = facade.create_place(place_data)
+        logging.info(f"New place: {new_place}")
 
         return {
             'id': new_place.id,
@@ -300,7 +308,7 @@ class PlaceResource(Resource):         # Récupération des méthodes par Resour
         """
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)  # Récupère la place par sont id
-        if str(place.owner) != current_user['id']:
+        if str(place.owner) != current_user:
             return {'error': 'Unauthorized action'}, 403
         elif not place:              # Si la place n'est pas trouvée = Erreur
             return {'error': 'Place not found'}, 404

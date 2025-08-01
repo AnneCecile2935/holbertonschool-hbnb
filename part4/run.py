@@ -17,8 +17,13 @@ from app import create_app
 from app.extensions import db
 from app.models import user
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO,  # Niveau de log : DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()  # Envoie les logs vers le terminal
+    ]
+)
 app = create_app()
 with app.app_context():
     db.create_all()

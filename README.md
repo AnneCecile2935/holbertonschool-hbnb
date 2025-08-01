@@ -185,6 +185,66 @@ Secure user authentication (login returns JWT token)
 
 👉 See: part3/
 
+### Part 4 : Simple Web Client Development
+
+The fourth phase focuses on building an interactive front-end interface that communicates with the existing back-end API using modern web technologies (HTML5, CSS3, JavaScript ES6).
+
+#### Implemented features
+
+##### User interface aligned with provided design specs
+
+- Login page
+- List of places
+- Place detail view
+- Add review form
+
+##### Front-end authentication:
+
+- Login using credentials → store JWT token in cookie
+
+- Conditional display of features (e.g. add review, logout) based on login state
+
+##### Place listing:
+
+- Fetches all places from the API
+- Implements client-side filtering by country
+- Redirects unauthenticated users to login
+
+##### Place detail:
+
+- Displays full information about a place
+- Loads and shows existing reviews
+- Authenticated users can submit a review
+
+##### Review submission:
+
+- Authenticated form to add reviews via POST request
+- Displays success or error messages dynamically
+
+##### Bonus: Support to edit a place if the user is its owner
+
+#### Technical Architecture
+
+##### Front-end
+
+- Pure HTML5 + CSS3 for structure and styling
+- JavaScript ES6 for logic and DOM manipulation
+
+#### Communication:
+
+- Fetch API for AJAX requests to the Flask backend
+- Token stored in cookie for JWT-based authentication
+- CORS enabled in the back-end to support cross-origin requests
+
+#### State handling:
+
+- Session state managed in browser via cookies
+- Conditional rendering of elements based on authentication state
+
+🛠 Technologies used: HTML5, CSS3, JavaScript (ES6), Fetch API, JWT (client-side), Flask (CORS support)
+
+👉 See: part4/
+
 ## 🧠 What We Learned
 
 ### Part 1: Design Phase
@@ -212,13 +272,13 @@ Secure user authentication (login returns JWT token)
 
 Together, these parts helped us develop practical skills in software design and API development, creating a robust base for the HBnB project’s upcoming stages.
 
-## 🚧 Upcoming Work
+### Part 4: Front-end & User Interaction
 
-Future phases (Parts 4) will include:
-
-- 🧪 **Extended automated testing**
-- 🖼 **Front-end development** (HTML/JS or modern framework)
-- 🧩 **Progressive deployment on servers or containers**
+- Built a dynamic user interface using HTML and JavaScript.
+- Managed forms for creating, updating, and deleting places.
+- Client-side validation and error handling.
+- Role-based access control on the interface.
+- Seamless integration between front-end and back-end API.
 
 ---
 

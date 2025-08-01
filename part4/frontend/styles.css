@@ -59,13 +59,15 @@ footer {
 .place-card,
 .review-card,
 .add-review {
+  display: flex;
+  flex-direction: column;
   background-color: white;
-  margin: 20px;
-  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .place-card:hover,
@@ -75,20 +77,26 @@ footer {
 }
 
 .place-card h3 {
-  margin-bottom: 5px;
+  margin-bottom: 0;
+  margin-bottom: 10px;
 }
 
 /* Details Button */
 .details-button {
+  margin-top: auto; /* Pousse le bouton vers le bas */
   background-color: #4a90e2;
   color: white;
   border: none;
   padding: 7px 15px;
-  border-radius: 5px;
+  border-radius: 0 0 8px 8px;
   cursor: pointer;
-  display: inline-block;
-  margin-top: 0.75rem;
+  display: block;
+  width: auto;
+  text-align: center;
   text-decoration: none;
+}
+.place-content {
+	flex: 1;
 }
 
 .details-button:hover {
@@ -104,6 +112,7 @@ footer {
   margin: 20px auto;
   max-width: 700px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
 .place-details h2 {
@@ -161,7 +170,8 @@ footer {
 }
 
 /* Add Review Form */
-#review-form {
+#review-form,
+#edit-place-form {
   max-width: 100%;
   margin: 20px auto;
   padding: 20px 25px;
@@ -171,13 +181,15 @@ footer {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-#review-form h2 {
+#review-form h2,
+#edit-place-form h2 {
   margin-bottom: 15px;
   color: #333;
 }
 
 #review-form label,
-#login-form label {
+#login-form label,
+#edit-place-form label {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
@@ -186,6 +198,9 @@ footer {
 
 #review-form textarea,
 #review-form select,
+#edit-place-form textarea,
+#edit-place-form input,
+#edit-place-form, select,
 #login-form input {
   width: 100%;
   padding: 8px 10px;
@@ -199,13 +214,17 @@ footer {
 
 #review-form textarea:focus,
 #review-form select:focus,
-#login-form input:focus {
+#edit-place-form textarea:focus,
+#edit-place-form select:focus,
+#login-form input:focus,
+#edit-place-form input:focus {
   border-color: #007BFF;
   outline: none;
   background-color: #fff;
 }
 
 #review-form button,
+#edit-place-form button,
 #login-form button {
   width: 100%;
   padding: 10px 0;
@@ -220,7 +239,8 @@ footer {
 }
 
 #review-form button:hover,
-#login-form button:hover {
+#login-form button:hover,
+#edit-place-form button:hover {
   background-color: #0056b3;
 }
 
@@ -263,16 +283,21 @@ footer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
+  padding: 20px;
 }
 
 .place-item {
-  background: #fff;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px;
+  max-width: 300px;
+  height: 100%; /* Assurez-vous que le conteneur prend toute la hauteur disponible */
+  box-sizing: border-box; /* Inclut le padding et la bordure dans la hauteur totale */
 }
+
 
 .place-item h3 {
   margin-top: 0;
@@ -285,36 +310,10 @@ footer {
   margin: 0.5rem 0;
 }
 
-/* Star Rating */
-.star-rating {
-  --star-size: 20px;
-  --star-color: #ccc;
-  --star-background: #fc0;
-  font-size: var(--star-size);
-  font-family: Times;
-  line-height: 1;
-  display: inline-block;
-  position: relative;
-  color: var(--star-color);
-  letter-spacing: 3px;
-  user-select: none;
-}
-
-.star-rating::before {
-  content: "★★★★★";
-  letter-spacing: 3px;
-}
-
-.star-rating::after {
-  content: "★★★★★";
-  letter-spacing: 3px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: calc(var(--rating) / 5 * 100%);
-  overflow: hidden;
-  white-space: nowrap;
-  color: var(--star-background);
+.review-rating {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #333;
 }
 
 /* Auth message */
@@ -340,16 +339,84 @@ footer {
   color: #4a90e2;
   margin: 20px 0;
 }
-	.hero-image {
-	width: 25%;
-	margin-bottom: 20px;
-	border-radius: 12px;
-	box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-	}
+.hero-image {
+width: 100%;
+margin-bottom: 30px;
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
 
-	.hero-image img {
-	width: 50%;
-	height: auto;
-	object-fit: contain;
-	display: block;
-	}
+.hero-image img {
+width: 100%;
+height: 200px;
+object-fit: cover;
+display: inline-block;
+}
+.place-item {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 16px;
+	margin: 16px;
+	max-width: 300px;
+	display: inline-block;
+}
+.place-content{
+	flex: 1;
+	padding: 10px;
+}
+.place-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px 8px 0 0;
+  object-fit: cover;
+}
+.place-details-image {
+  width: 100%; /* Prend toute la largeur du conteneur parent */
+  height: auto; /* Conserve les proportions de l'image */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 8px; /* Optionnel : ajoute des coins arrondis */
+}
+.place-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 16px;
+  max-width: 300px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+
+.place-content {
+  flex: 1;
+  padding: 16px 0;
+}
+.place-content p + p {
+	margin-top: 20px;
+}
+
+.details-button {
+  margin-top: auto;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.place-price {
+  margin-top: 20px; /* Ajoutez de l'espace au-dessus du prix */
+}
+.details-button:hover {
+  background-color: #357ABD;
+}
