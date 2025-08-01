@@ -7,7 +7,13 @@ export function getCookie(name) {
   // Si on trouve bien une partie correspondant au cookie demandé
   // on retourne sa valeur (jusqu'au prochain point-virgule)
   // sinon on retourne null
-  return parts.length === 2 ? parts.pop().split(';').shift() : null;
+  if (parts.length === 2) {
+    const cookiePart = parts.pop(); // récupère la partie contenant la valeur
+    const cookieValue = cookiePart.split(';').shift(); // isole la valeur
+    return cookieValue;
+  } else {
+    return null;
+  }
 }
 
 // Fonction pour récupérer le token JWT stocké dans le cookie 'token'
@@ -31,7 +37,8 @@ export function deleteToken() {
 // Fonction pour vérifier si l'utilisateur est authentifié
 // Elle retourne true si un token est présent (converti en booléen), false sinon
 export function isAuthenticated() {
-  return !!getToken();
+  const token = getToken();
+  return token !== null && token !== undefined && token !== '';
 }
 
 // Fonction pour rediriger l'utilisateur vers la page index.html
