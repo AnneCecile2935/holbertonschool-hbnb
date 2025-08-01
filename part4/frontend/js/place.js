@@ -38,15 +38,23 @@ export function displayPlaceDetails(place) {
   // Sélecteur de la liste des reviews
   const reviewList = document.getElementById('review-list');
   // Si des reviews existent, les afficher, sinon message "No reviews yet."
-  reviewList.innerHTML = place.reviews?.length
-    ? place.reviews.map(r => `
-      <li>
-        <strong>${r.user?.first_name || "Unknown"}:</strong>
-        <div class="star-rating" style="--rating: ${r.rating};"></div>
-        <p>${r.text}</p>
-      </li>
-    `).join('')
-  : '<li>No reviews yet.</li>';
+  reviewList.innerHTML = '';
+   console.log(place.reviews);
+  if(place.reviews?.length){
+	place.reviews.forEach(r => {
+		const card = document.createElement('li');
+		card.classList.add('review-card');
+		card.innerHTML = `
+		<p class="review-user">${r.user?.first_name || "Anonyme"}:</strong></p>
+		<div class="star-rating" style="--rating: ${r.rating};">${r.rating}/5</div>
+		<p class="review-text">${r.text}</p>
+		`;
+		reviewList.appendChild(card);
+	});
+  } else {
+	reviewList.innerHTML = '<li>No review for this place.</li>'
+  }
+
 }
 
 // Événement déclenché quand le DOM est entièrement chargé
