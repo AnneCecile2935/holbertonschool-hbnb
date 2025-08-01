@@ -1,259 +1,143 @@
-# HBnB - Part 3: Authentication & Database Integration
+# HBnB - Part 4: Simple Web Client
 
 This is Part 3 of the HBnB project, which introduces user authentication and database integration. It replaces in-memory storage with SQLAlchemy ORM using SQLite (for development) and MySQL (for production), and adds secure user login via JWT.
 
-## 🎯 Objectives – Part 3
+## 🎯 Objectives – Part 4
 
-The main goals of Part 3 of the HBnB project are:
+The main goals of Part 4 of the HBnB project are:
 
-- ✅ **Persist data** using a relational database instead of in-memory storage.
-- ✅ **Introduce user authentication** using JWT (JSON Web Tokens) with `Flask-JWT-Extended`.
-- ✅ **Enforce password security** with hashing via `Flask-Bcrypt`.
-- ✅ **Implement role-based access control** to distinguish between admin and regular users.
-- ✅ **Structure the application** using best practices: blueprints, services, persistence layers, and modular config.
-- ✅ **Support CRUD operations** for all core models (User, Place, Review, Amenity) with database backing.
-- ✅ **Visualize database relationships** using `Mermaid.js` entity-relationship diagrams.
-- ✅ **Prepare the app for deployment** by supporting both SQLite (dev) and MySQL (prod).
+✅ Create an interactive front-end that matches provided design specifications.
 
-This part lays the foundation for a scalable, secure backend using modern Flask architecture and relational persistence.
+✅ Connect the web client to the back-end API using Fetch and handle JSON responses.
+
+✅ Implement login functionality with JWT token storage in browser cookies.
+
+✅ Build dynamic pages: login, list of places, place detail, and review submission.
+
+✅ Filter data client-side (e.g., by country) and conditionally display UI based on authentication.
+
 
 ## 📌 Features
 
-- JWT-based authentication (`Flask-JWT-Extended`)
-- Role-based access control (admin vs. regular users)
-- Password hashing (`Flask-Bcrypt`)
-- SQLAlchemy integration (SQLite & MySQL)
-- CRUD operations backed by a relational database
-- Relationships between models (Users, Places, Reviews, Amenities)
-- Mermaid.js diagrams to visualize database structure
+- Responsive and modular front-end interface using HTML, CSS, and JS
+- JWT-based login and session persistence via cookies
+- Fetch integration to load and manipulate API data in real time
+- Protected routes (e.g., add review requires login)
+- Place filtering by country
+- Display of all place reviews and review submission form
+- Ability to update a place if the user is the owner
 
 ## 🗂️ Project Structure
 
 ```
 <pre>
 
-part3/
-├── README.md              # Project documentation
-├── Sql/                   # SQL scripts (schema, migrations)
-├── config.py              # Flask configuration
-├── doc/                   # Documentation resources
-├── instance/              # Instance-specific configs
-├── requirements.txt       # Project dependencies
-├── run.py                 # App entry point
-├── tests/                 # Unit & integration tests
-├── venv/                  # Virtual environment
-└── app/                   # Main application package
-    ├── __init__.py        # App factory
-    ├── extensions.py      # JWT, DB, Bcrypt extensions
-    ├── api/               # Flask routes (blueprints)
-    ├── models/            # ORM models
-    ├── persistence/       # DB sessions, repositories
-    ├── services/          # Business logic
-    └── utils/             # Helper functions
+part4/
+frontend/
+├── index.html             # List of places (home page)
+├── login.html             # Login form
+├── place.html             # Place details and reviews
+├── add_review.html        # Form to add a review
+├── update_place.html      # Form to update a place
+├── style.css              # App-wide styling
+├── js/
+│   ├── auth.js            # Authentication & token handling
+│   ├── edit-place.js      # form to update a place
+│   ├── index.js           # Home page logic (place listing)
+│   ├── login.js           # Login logic
+│   ├── main.js            # Principal script
+│   ├── place.js           # Place detail and reviews logic
+│   ├── review.js          # Submit a review for a place
+│   └── utils.js           # Reusable helpers
 
 </pre>
 ```
 
-## 🛠️ Installation && Running
+## 🖥️ Running the Full Application (Back-end + Front-end)
 
-### 1. Clone the repository
+To run the complete HBnB application, you need to start both the back-end API server and the front-end static server.
 
-```bash
-git clone https://github.com/Helvlaska/holbertonschool-hbnb.git
-```
-
-### 2. Create a virtual environment
+🔙 Start the Back-end (Flask API)
 
 ```bash
-python3 -m venv venv
+
+### Activate virtual environment if needed
+
 source venv/bin/activate
 ```
 
-### 3. Install dependencies
-
 ```bash
-pip install -r requirements.txt
-```
-
-### 4.  Start the application
-
-```bash
-python run.py
-```
-
-By default, the app will be available at:
-
-```
-http://127.0.0.1:5000/
-```
-
-## ⚙️ Usage
-
-Run the App
-
----
-
-### Set environment (development or production)
-
-export FLASK_ENV=development
-export FLASK_APP=run.py
-
-### Run the server
-
-```bash
+### Run the Flask back-end server
 
 python3 run.py
 ```
 
-## 🛠 Configuration
+By default, it runs at:
 
-The config.py file includes configuration classes:
+```arduino
 
-Config: Base configuration
-
-DevelopmentConfig: Debug mode enabled by default
-
-You can set the SECRET_KEY environment variable to secure your application.
-
-## 🔧 Dependencies
-
-The requirements.txt file includes:
-
+http://localhost:5000/
 ```
 
-flask
-flask-restx
+🔜 Start the Front-end (Static Server)
+You can use any static server (e.g., Python's http.server, Live Server, or serve via VSCode).
+
+Example with Python:
+
+```bash
+
+cd front_end/
+python3 -m http.server 5500
 ```
+
+This will serve the HTML files at:
+
+```arduino
+
+http://localhost:5500/
+```
+
+Make sure your back-end is running at http://localhost:5000/ so the front-end can communicate properly with the API.
+
+## ⚙️ Notes
+CORS must be enabled on the Flask API to allow requests from the front-end.
+
+The JWT token is stored as a cookie to persist the login session.
+
+DOM updates are managed via vanilla JS (no front-end framework used).
+
+Minimal external dependencies—pure HTML/CSS/JS.
+
+---
+
+## 🔐 Auth Flow
+
+User logs in → token is stored in cookie.
+
+All fetch calls include token in headers if user is authenticated.
+
+User is redirected to login if token is missing or invalid.
+
+Logout clears the cookie and redirects to login page.
 
 ## 🚧 Project Status
 
-✅ Project structure in place
-
-✅ Functional in-memory repository
-
-✅ Facade instantiated
-
-✅ API routes implemented in Part 3
-
-✅ Database integration completed in Part 3
-
-🕓 Front-end development planned for Part 4
-
-🕓 Further testing and documentation enhancements pending
+✅ Front-end pages implemented and styled
+✅ JWT-based login integrated
+✅ Place list and detail pages dynamically populated
+✅ Review submission available to authenticated users
+✅ Conditional rendering based on user session
+✅ Edit Place feature for place owners
+🕓 Responsive design improvements and animations pending
 
 ## 🧪 Technologies
 
-- Python 3
-- Flask
-- SQLAlchemy
-- Flask-JWT-Extended
-- Flask-Bcrypt
-- SQLite
-- Mermaid.js (for ER diagrams)
-
-## 🧪 Testing SQL Scripts
-
-To verify and test your SQL scripts (e.g., schema creation, table relationships), you can use either SQLite (dev) or MySQL (prod).
-
-### ▶️ Using SQLite (Dev)
-
-```bash
-# Launch SQLite with a test database
-sqlite3 hbnb.db
-
-# Inside SQLite shell, run your script:
-.read Sql/schema.sql
-
-# Check tables created
-.tables
-
-# Exit SQLite shell
-.quit
-
-# Optional: Delete test DB after test
-rm hbnb.db
-```
-
-```mermaid
-
-erDiagram
-    USER {
-        CHAR(36) id PK
-        VARCHAR first_name
-        VARCHAR last_name
-        VARCHAR email
-        VARCHAR password
-        BOOLEAN is_admin
-    }
-
-    PLACE {
-        CHAR(36) id PK
-        VARCHAR title
-        TEXT description
-        DECIMAL price
-        FLOAT latitude
-        FLOAT longitude
-        CHAR(36) owner_id FK
-    }
-
-    REVIEW {
-        CHAR(36) id PK
-        TEXT text
-        INT rating
-        CHAR(36) user_id FK
-        CHAR(36) place_id FK
-    }
-
-    AMENITY {
-        CHAR(36) id PK
-        VARCHAR name
-    }
-
-    PLACE_AMENITY {
-        CHAR(36) place_id FK
-        CHAR(36) amenity_id FK
-    }
-
-    RESERVATION {
-        CHAR(36) id PK
-        DATE start_date
-        DATE end_date
-        VARCHAR status
-        CHAR(36) user_id FK
-        CHAR(36) place_id FK
-    }
-
-    USER ||--o{ PLACE : "owns"
-    USER ||--o{ REVIEW : "writes"
-    PLACE ||--o{ REVIEW : "receives"
-    PLACE ||--o{ PLACE_AMENITY : "has"
-    AMENITY ||--o{ PLACE_AMENITY : "included in"
-
-    USER ||--o{ RESERVATION : "makes"
-    PLACE ||--o{ RESERVATION : "booked in"
-```
-
-✅ Updates made:
-
-A new table called RESERVATION can will be added.
-
-It is linked to the USER table (a user can make multiple reservations).
-
-It is also linked to the PLACE table (a place can be reserved multiple times).
-
-This models the booking system, where users can reserve different places for their stay.
-
-## ✅ Admin Access
-
-- Admins can:
-
-- Create or modify users
-
-- Add/edit amenities
-
-- Bypass ownership restrictions
-
-- Set is_admin=True for a user in the database or via a migration script.
+- HTML5
+- CSS3
+- JavaScript (ES6)
+- Fetch API
+- JWT (stored in cookies)
+- Flask (back-end) with CORS enabled
 
 ## 📄 License
 
@@ -261,4 +145,4 @@ Educational project — Holberton School.
 
 ## 👥 Author
 
-Claire Castan Anne-Cécile Colléter
+Anne-Cécile Colléter
