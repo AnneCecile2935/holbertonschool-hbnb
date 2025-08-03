@@ -1,6 +1,7 @@
 import { getCookie } from './auth.js';
-import { fetchPlaceDetails as fetchPlaceDetailsFromAPI, displayPlaceDetails as showPlace } from './place.js';
-import { submitReview } from './review.js'; // utile seulement si tu veux forcer un refresh après le submit, sinon peut être retiré
+import { submitReview } from './review.js'; // utile seulement pour forcer un refresh après le submit
+
+// === UTILITAIRE ===
 
 // Fonction pour extraire l'ID du lieu depuis l'URL
 function getPlaceIdFromURL() {
@@ -22,10 +23,12 @@ export async function fetchPlaceDetails(token, placeId) {
       }
     });
 
+    // Vérifie si la requête s’est bien déroulée
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    // Retourne les données au format JSON
     return await response.json();
   } catch (error) {
     console.error('Error fetching place details:', error);
@@ -33,7 +36,7 @@ export async function fetchPlaceDetails(token, placeId) {
   }
 }
 
-// Fonction pour afficher les détails du lieu dans la page HTML
+// Fonction d'affichage des détails du lieu dans le DOM
 export function displayPlaceDetails(place) {
   const container = document.getElementById('place-details');
   if (!container) {
@@ -41,6 +44,7 @@ export function displayPlaceDetails(place) {
     return;
   }
 
+  // Injecte dynamiquement les informations du lieu dans le HTML
   container.innerHTML = `
     <h2>${place.title}</h2>
     <p>${place.description}</p>
@@ -67,22 +71,30 @@ export function displayPlaceDetails(place) {
     : '<li>No review for this place.</li>';
 }
 
-// Initialisation de la page (à faire uniquement si on est sur place.html)
+// === INITIALISATION DE LA PAGE ===
+
+// Lorsque le DOM est prêt, on initialise l'affichage uniquement si on est sur place.html
 document.addEventListener('DOMContentLoaded', async () => {
+  // Vérifie qu'on est bien sur la bonne page
   if (!window.location.pathname.endsWith('place.html')) return;
 
+  // Récupère l’ID du lieu à afficher
   const placeId = getPlaceIdFromURL();
   if (!placeId) {
     console.error('No place ID provided in the URL.');
     return;
   }
 
+  // Récupère le token pour les appels authentifiés
   const token = getCookie('token');
+
+  // Affiche ou masque la section "ajouter un avis" selon l'état de connexion
   const addReviewSection = document.getElementById('add-review-section');
   if (addReviewSection) {
     addReviewSection.style.display = token ? 'block' : 'none';
   }
 
+  // Récupère les données du lieu et les affiche
   const place = await fetchPlaceDetails(token, placeId);
   if (place) {
     displayPlaceDetails(place);

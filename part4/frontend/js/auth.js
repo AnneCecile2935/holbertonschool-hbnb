@@ -24,9 +24,7 @@ export function getToken() {
 // Fonction pour enregistrer un token JWT dans un cookie nommé 'token'
 // Le cookie est accessible sur tout le site (path=/)
 export function setToken(token) {
-  console.log("Setting token cookie:", token);
   document.cookie = `token=${token}; path=/`;
-  console.log("Cookie after setting:", document.cookie);
 }
 
 // Fonction pour supprimer le cookie 'token' en le rendant expiré immédiatement
@@ -48,6 +46,8 @@ export function redirectIfNotAuthenticated() {
     window.location.href = 'index.html';
   }
 }
+// Gestion des boutons de login/logout
+// Si authentifié
 export function updateAuthButtons() {
   const loginButton = document.getElementById('login-button');
   const logoutButton = document.getElementById('logout-button');
@@ -60,7 +60,7 @@ export function updateAuthButtons() {
     if (logoutButton) logoutButton.style.display = 'none';
   }
 }
-
+// Pour de delogger
 export function setupLogoutButton() {
   const logoutButton = document.getElementById('logout-button');
   if (logoutButton) {
